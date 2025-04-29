@@ -23,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env.example
-
+.env
 # Ignora la carpeta supabase
 supabase
