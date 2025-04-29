@@ -19,15 +19,27 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Bloquear el scroll cuando el menú móvil está abierto
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMobileMenuOpen]);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  // Eliminando completamente el padding vertical para subir los elementos
+  // Ajustando las clases para mejor compatibilidad móvil
   const navbarClasses = `fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-    isScrolled ? 'bg-white shadow-md py-0' : 'bg-transparent py-0'
-  }`;
+    isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
+  } py-2 md:py-0`;
 
   const navLinks = [
     { label: 'Inicio', path: '/' },
@@ -39,25 +51,25 @@ const Navbar = () => {
 
   return (
     <nav className={navbarClasses}>
-      {/* Aplicando margen negativo al contenedor principal para subir todo */}
-      <div className="container-custom flex items-center justify-between py-0 -mt-1">
+      {/* Contenedor principal con padding ajustado para móviles */}
+      <div className="container-custom flex items-center justify-between py-2 md:py-0 md:-mt-1">
         <NavLink to="/" className="flex items-center gap-2">
-          {/* Ajustando la posición del logo con margin negativo más pronunciado */}
-          <div className="h-15 w-80 rounded overflow-hidden -mt-4">
+          {/* Ajustando la posición del logo para que sea visible en móviles */}
+          <div className="h-12 w-60 md:h-15 md:w-80 rounded overflow-hidden md:-mt-4">
             <img 
               src="https://www.domumarquitectura.com/wp-content/uploads/2025/02/LOGOS-09.png" 
-              alt="Modern office interior"
+              alt="DOMUM Arquitectura"
               className="w-full h-full object-cover"
             />
           </div>
-          {/* Ajustando la posición del texto */}
-          <span className="font-serif text-xl font-medium text-primary-900 -mt-4">
+          {/* Ocultando el texto en móviles para ahorrar espacio */}
+          <span className="hidden md:inline-block font-serif text-xl font-medium text-primary-900 md:-mt-4">
             DOMUM Arquitectura
           </span>
         </NavLink>
 
-        {/* Desktop Navigation - subiendo los elementos con margin negativo más pronunciado */}
-        <div className="hidden md:flex md:items-center md:gap-8 -mt-4">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex md:items-center md:gap-8 md:-mt-4">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
@@ -100,32 +112,33 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button - subiendo con margin negativo más pronunciado */}
+        {/* Mobile Menu Button - eliminando margen negativo que podría causar problemas */}
         <button
-          className="md:hidden -mt-4"
+          className="md:hidden p-2"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Menu - ajustando la posición para que aparezca correctamente */}
+      {/* Mobile Menu - ajustando para que aparezca correctamente */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white mt-0"
+            className="md:hidden bg-white shadow-lg fixed top-[60px] left-0 w-full z-40 overflow-y-auto max-h-[calc(100vh-60px)]"
           >
-            <div className="container-custom py-3 flex flex-col gap-3">
+            <div className="container-custom py-4 flex flex-col gap-4">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    isActive ? 'nav-link-active' : 'nav-link'
+                    `block py-2 ${isActive ? 'nav-link-active' : 'nav-link'}`
                   }
                 >
                   {link.label}
@@ -133,17 +146,24 @@ const Navbar = () => {
               ))}
               
               {user ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3 border-t border-gray-200 pt-3">
+                  <div className="text-sm text-gray-500">Mi Cuenta</div>
                   {isAdmin && (
                     <NavLink
                       to="/dashboard"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="nav-link"
+                      className="block py-2 nav-link"
                     >
                       Dashboard
                     </NavLink>
                   )}
-                  <button onClick={handleSignOut} className="text-left nav-link">
+                  <button 
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMobileMenuOpen(false);
+                    }} 
+                    className="text-left py-2 nav-link text-red-600"
+                  >
                     Cerrar Sesión
                   </button>
                 </div>
@@ -151,7 +171,7 @@ const Navbar = () => {
                 <NavLink
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="button-primary self-start"
+                  className="button-primary self-start mt-2"
                 >
                   Iniciar Sesión
                 </NavLink>
