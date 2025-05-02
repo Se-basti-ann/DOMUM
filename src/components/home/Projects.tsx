@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { Project } from '../../types';
 
@@ -72,13 +73,13 @@ const Projects = () => {
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <a 
-              href="/proyectos" 
+            <NavLink 
+              to="/proyectos" 
               className="mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
             >
               Ver todos los proyectos
               <ArrowUpRight size={16} />
-            </a>
+            </NavLink>
           </motion.div>
         </div>
         
@@ -122,12 +123,12 @@ const Projects = () => {
                   
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="bg-black/40 w-full h-full flex items-center justify-center">
-                      <a 
-                        href={`/proyectos/${project.slug}`}
+                      <NavLink 
+                        to={`/proyectos/${project.slug}`}
                         className="bg-white text-primary-900 px-5 py-2 rounded-full font-medium hover:bg-primary-50 transition-colors"
                       >
                         Ver Proyecto
-                      </a>
+                      </NavLink>
                     </div>
                   </div>
                 </div>
