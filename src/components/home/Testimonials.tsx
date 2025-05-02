@@ -8,7 +8,7 @@ const testimonials = [
     name: 'Carlos Rodríguez',
     position: 'CEO de Inmobiliaria Moderna',
     image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-    content: 'ArquiStudio transformó nuestra visión en realidad. Su atención al detalle y compromiso con la sostenibilidad superó todas nuestras expectativas.',
+    content: 'DOMUM Arquitectura transformó nuestra visión en realidad. Su atención al detalle y compromiso con la sostenibilidad superó todas nuestras expectativas.',
     rating: 5
   },
   {
@@ -16,7 +16,7 @@ const testimonials = [
     name: 'Ana Martínez',
     position: 'Directora de Desarrollo Urbano',
     image: 'https://images.pexels.com/photos/3796217/pexels-photo-3796217.jpeg',
-    content: 'La creatividad y profesionalismo del equipo de ArquiStudio es excepcional. Lograron crear un espacio que refleja perfectamente nuestra identidad corporativa.',
+    content: 'La creatividad y profesionalismo del equipo de DOMUM Arquitectura es excepcional. Lograron crear un espacio que refleja perfectamente nuestra identidad corporativa.',
     rating: 5
   },
   {
@@ -24,7 +24,7 @@ const testimonials = [
     name: 'Miguel Sánchez',
     position: 'Propietario de Luxury Homes',
     image: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg',
-    content: 'Trabajar con ArquiStudio fue una experiencia extraordinaria. Su capacidad para combinar funcionalidad y estética es incomparable.',
+    content: 'Trabajar con DOMUM Arquitectura fue una experiencia extraordinaria. Su capacidad para combinar funcionalidad y estética es incomparable.',
     rating: 5
   }
 ];

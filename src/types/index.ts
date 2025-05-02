@@ -16,6 +16,7 @@ export interface Blog {
 }
 
 export interface Project {
+  meters: any;
   area: ReactNode;
   id: string;
   title: string;

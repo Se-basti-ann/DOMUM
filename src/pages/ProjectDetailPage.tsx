@@ -172,7 +172,7 @@ const ProjectDetailPage = () => {
                   <Ruler className="text-primary-600 mt-1" size={20} />
                   <div>
                     <h4 className="font-medium text-primary-900">Área</h4>
-                    <p className="text-primary-700">{project.area} m²</p>
+                    <p className="text-primary-700">{project.meters || project.area || "No especificada"} m²</p>
                   </div>
                 </div>
                 

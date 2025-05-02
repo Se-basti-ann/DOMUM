@@ -36,10 +36,10 @@ const Navbar = () => {
     navigate('/');
   };
 
-  // Ajustando las clases para mejor compatibilidad móvil
+  // Manteniendo los estilos originales pero con ajustes responsivos
   const navbarClasses = `fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-    isScrolled ? 'bg-white shadow-md' : 'bg-transparent'
-  } py-2 md:py-0`;
+    isScrolled ? 'bg-white shadow-md py-0' : 'bg-transparent py-0'
+  }`;
 
   const navLinks = [
     { label: 'Inicio', path: '/' },
@@ -51,25 +51,25 @@ const Navbar = () => {
 
   return (
     <nav className={navbarClasses}>
-      {/* Contenedor principal con padding ajustado para móviles */}
-      <div className="container-custom flex items-center justify-between py-2 md:py-0 md:-mt-1">
-        <NavLink to="/" className="flex items-center gap-2">
-          {/* Ajustando la posición del logo para que sea visible en móviles */}
-          <div className="h-12 w-60 md:h-15 md:w-80 rounded overflow-hidden md:-mt-4">
+      {/* Contenedor principal con ajustes responsivos */}
+      <div className="container-custom flex items-center justify-between py-0 -mt-1 px-2 sm:px-4 md:px-6">
+        <NavLink to="/" className="flex items-center gap-0 md:gap-2 max-w-[65%] md:max-w-none">
+          {/* Logo con ajustes responsivos */}
+          <div className="h-30 w-40 sm:w-60 md:h-15 md:w-80 rounded overflow-hidden -mt-2 md:-mt-4">
             <img 
               src="https://www.domumarquitectura.com/wp-content/uploads/2025/02/LOGOS-09.png" 
               alt="DOMUM Arquitectura"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain md:object-cover"
             />
           </div>
-          {/* Ocultando el texto en móviles para ahorrar espacio */}
-          <span className="hidden md:inline-block font-serif text-xl font-medium text-primary-900 md:-mt-4">
+          {/* Texto oculto en móviles */}
+          <span className="hidden md:inline-block font-serif text-xl font-medium text-primary-900 -mt-4">
             DOMUM Arquitectura
           </span>
         </NavLink>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-8 md:-mt-4">
+        <div className="hidden md:flex md:items-center md:gap-8 -mt-4">
           {navLinks.map((link) => (
             <NavLink
               key={link.path}
@@ -112,9 +112,9 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button - eliminando margen negativo que podría causar problemas */}
+        {/* Mobile Menu Button con ajustes responsivos */}
         <button
-          className="md:hidden p-2"
+          className="md:hidden p-2 -mt-2 md:-mt-4"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
         >
@@ -122,16 +122,16 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu - ajustando para que aparezca correctamente */}
+      {/* Mobile Menu con posición fija para evitar problemas de visualización */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white shadow-lg fixed top-[60px] left-0 w-full z-40 overflow-y-auto max-h-[calc(100vh-60px)]"
+            className="md:hidden bg-white shadow-lg fixed top-[52px] left-0 w-full z-40 overflow-y-auto max-h-[calc(100vh-52px)]"
           >
-            <div className="container-custom py-4 flex flex-col gap-4">
+            <div className="container-custom py-3 flex flex-col gap-3">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.path}
@@ -146,7 +146,7 @@ const Navbar = () => {
               ))}
               
               {user ? (
-                <div className="flex flex-col gap-3 border-t border-gray-200 pt-3">
+                <div className="flex flex-col gap-2 border-t border-gray-200 pt-2 mt-1">
                   <div className="text-sm text-gray-500">Mi Cuenta</div>
                   {isAdmin && (
                     <NavLink
@@ -171,7 +171,7 @@ const Navbar = () => {
                 <NavLink
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="button-primary self-start mt-2"
+                  className="button-primary self-start mt-1"
                 >
                   Iniciar Sesión
                 </NavLink>
