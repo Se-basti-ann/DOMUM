@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Calendar, ArrowUpRight } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { Blog } from '../../types';
 
@@ -80,13 +81,13 @@ const BlogPreview = () => {
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <a 
-              href="/blog" 
-              className="mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
+            <NavLink 
+              to="/blog" 
+              className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
             >
               Ver todas las publicaciones
               <ArrowUpRight size={16} />
-            </a>
+            </NavLink>
           </motion.div>
         </div>
         
@@ -133,13 +134,13 @@ const BlogPreview = () => {
                   <h3 className="text-xl font-medium mb-3">{post.title}</h3>
                   <p className="text-primary-700 mb-4">{post.excerpt}</p>
                   
-                  <a 
-                    href={`/blog/${post.slug}`}
-                    className="inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
+                  <NavLink 
+                    to={`/blog/${post.slug}`}
+                    className="button-primary inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
                   >
                     Leer más
                     <ArrowUpRight size={16} />
-                  </a>
+                  </NavLink>
                 </div>
               </motion.div>
             ))

@@ -1,33 +1,33 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Calendar, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useSupabase } from '../../contexts/SupabaseContext';
-import { Blog } from '../../types';
+import { Project } from '../../types';
 
-const BlogPreview = () => {
+const Projects = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const supabase = useSupabase();
-  const [posts, setPosts] = useState<Blog[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchRecentPosts();
+    fetchFeaturedProjects();
   }, []);
 
-  const fetchRecentPosts = async () => {
+  const fetchFeaturedProjects = async () => {
     try {
       const { data, error } = await supabase
-        .from('blogs')
+        .from('projects')
         .select('*')
-        .order('published_at', { ascending: false })
-        .limit(2);
+        .order('created_at', { ascending: false })
+        .limit(3);
 
       if (error) throw error;
-      setPosts(data || []);
+      setProjects(data || []);
     } catch (error) {
-      console.error('Error fetching recent posts:', error);
+      console.error('Error fetching featured projects:', error);
     } finally {
       setIsLoading(false);
     }
@@ -52,16 +52,8 @@ const BlogPreview = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
-  
   return (
-    <section ref={ref} className="section-padding bg-primary-50">
+    <section ref={ref} className="section-padding bg-white">
       <div className="container-custom">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <motion.div
@@ -69,10 +61,10 @@ const BlogPreview = () => {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-primary-900 mb-3">Últimas Publicaciones</h2>
+            <h2 className="text-primary-900 mb-3">Proyectos Destacados</h2>
             <p className="text-primary-700 max-w-xl">
-              Manténgase al día con nuestras últimas ideas, investigaciones y 
-              reflexiones sobre el mundo de la arquitectura.
+              Una muestra de nuestros proyectos más recientes y destacados en 
+              diferentes categorías arquitectónicas.
             </p>
           </motion.div>
           
@@ -81,11 +73,8 @@ const BlogPreview = () => {
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <NavLink 
-              to="/blog" 
-              className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
-            >
-              Ver todas las publicaciones
+             <NavLink to="/proyectos" className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors">
+              Ver todos los proyectos
               <ArrowUpRight size={16} />
             </NavLink>
           </motion.div>
@@ -95,52 +84,50 @@ const BlogPreview = () => {
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {isLoading ? (
-            <div className="col-span-2 flex justify-center py-12">
+            <div className="col-span-3 flex justify-center py-12">
               <div className="h-8 w-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
             </div>
-          ) : posts.length === 0 ? (
-            <div className="col-span-2 text-center py-12">
-              <p className="text-primary-600">No hay publicaciones disponibles.</p>
+          ) : projects.length === 0 ? (
+            <div className="col-span-3 text-center py-12">
+              <p className="text-primary-600">No hay proyectos destacados disponibles.</p>
             </div>
           ) : (
-            posts.map((post) => (
-              <motion.div
-                key={post.id}
+            projects.map(project => (
+              <motion.div 
+                key={project.id}
                 variants={itemVariants}
-                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
+                className="group overflow-hidden rounded-lg"
               >
-                <div className="h-48 overflow-hidden">
+                <div className="relative h-80 overflow-hidden">
                   <img 
-                    src={post.image_url} 
-                    alt={post.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    src={project.image_url} 
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                </div>
-                
-                <div className="p-6">
-                  <div className="flex items-center gap-4 mb-3">
-                    <span className="text-sm font-medium bg-primary-100 text-primary-800 px-3 py-1 rounded-full">
-                      {post.category}
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-80"></div>
+                  
+                  <div className="absolute bottom-0 left-0 w-full p-6">
+                    <span className="inline-block px-3 py-1 bg-white text-primary-900 text-sm font-medium rounded-full mb-3">
+                      {project.category}
                     </span>
-                    <span className="text-sm text-primary-600 flex items-center gap-1">
-                      <Calendar size={14} />
-                      {formatDate(post.published_at)}
-                    </span>
+                    <h3 className="text-white text-xl font-medium mb-1">{project.title}</h3>
+                    <p className="text-primary-100">{project.year}</p>
                   </div>
                   
-                  <h3 className="text-xl font-medium mb-3">{post.title}</h3>
-                  <p className="text-primary-700 mb-4">{post.excerpt}</p>
-                  
-                  <NavLink 
-                    to={`/blog/${post.slug}`}
-                    className="button-primary inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
-                  >
-                    Leer más
-                    <ArrowUpRight size={16} />
-                  </NavLink>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-black/40 w-full h-full flex items-center justify-center">
+                      <NavLink 
+                        to={`/proyectos/${project.slug}`}
+                        className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
+                      >
+                        Ver Proyecto
+                      </NavLink>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))
@@ -151,4 +138,4 @@ const BlogPreview = () => {
   );
 };
 
-export default BlogPreview;
+export default Projects;
