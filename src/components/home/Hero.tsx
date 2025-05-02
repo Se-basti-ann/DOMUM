@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom'; // Importamos Link de React Router
 
 const Hero = () => {
   return (
@@ -32,12 +33,12 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-wrap gap-4">
-            <a href="/proyectos" className="button-primary bg-accent-600 hover:bg-accent-700">
+            <Link to="/proyectos" className="button-primary bg-accent-600 hover:bg-accent-700">
               Ver Proyectos
-            </a>
-            <a href="/contacto" className="button-secondary border-white text-white hover:bg-white hover:text-primary-900">
+            </Link>
+            <Link to="/contacto" className="button-secondary border-white text-white hover:bg-white hover:text-primary-900">
               Contáctanos
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>
