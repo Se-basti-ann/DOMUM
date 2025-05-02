@@ -73,10 +73,7 @@ const Projects = () => {
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <NavLink 
-              to="/proyectos" 
-              className="mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
-            >
+             <NavLink to="/proyectos" className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors">
               Ver todos los proyectos
               <ArrowUpRight size={16} />
             </NavLink>
@@ -125,7 +122,7 @@ const Projects = () => {
                     <div className="bg-black/40 w-full h-full flex items-center justify-center">
                       <NavLink 
                         to={`/proyectos/${project.slug}`}
-                        className="bg-white text-primary-900 px-5 py-2 rounded-full font-medium hover:bg-primary-50 transition-colors"
+                        className="button-primary mt-4 md:mt-0 inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
                       >
                         Ver Proyecto
                       </NavLink>
