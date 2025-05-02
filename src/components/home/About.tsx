@@ -50,10 +50,10 @@ const About = () => {
               sus visiones en espacios inspiradores y funcionales.
             </motion.p>
             
-            <motion.div variants={itemVariants}>
-              <NavLink to="/nosotros" className="button-primary">
-                Conoce más sobre nosotros
-              </NavLink>
+            <motion.div variants={itemVariants}>              
+              <NavLink to="/nosotros" className="button-primary bg-accent-600 hover:bg-accent-700">
+              Conoce más sobre nosotros
+            </NavLink>
             </motion.div>
           </div>
 
