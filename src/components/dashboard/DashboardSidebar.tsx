@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, FileText, Folder, MessageSquare, Users, LogOut } from 'lucide-react';
+import { Home, FileText, Folder, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const DashboardSidebar = () => {
@@ -10,8 +10,6 @@ const DashboardSidebar = () => {
     { to: '/dashboard', label: 'Inicio', icon: <Home size={20} /> },
     { to: '/dashboard/blog', label: 'Blog', icon: <FileText size={20} /> },
     { to: '/dashboard/proyectos', label: 'Proyectos', icon: <Folder size={20} /> },
-    { to: '/dashboard/mensajes', label: 'Mensajes', icon: <MessageSquare size={20} /> },
-    { to: '/dashboard/equipo', label: 'Equipo', icon: <Users size={20} /> },
   ];
   
   const isActive = (path: string) => {

@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Folder, MessageSquare, Users, PlusCircle } from 'lucide-react';
+import { FileText, Folder, PlusCircle } from 'lucide-react';
 import { useSupabase } from '../../contexts/SupabaseContext';
 
 const DashboardHome = () => {
@@ -8,9 +9,6 @@ const DashboardHome = () => {
   const [stats, setStats] = useState({
     blogPosts: 0,
     projects: 0,
-    messages: 0,
-    teamMembers: 0,
-    unreadMessages: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,28 +27,9 @@ const DashboardHome = () => {
           .from('projects')
           .select('*', { count: 'exact', head: true });
 
-        // Get messages count
-        const { count: messagesCount } = await supabase
-          .from('contact_messages')
-          .select('*', { count: 'exact', head: true });
-
-        // Get unread messages count
-        const { count: unreadMessagesCount } = await supabase
-          .from('contact_messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('read', false);
-
-        // Get team members count
-        const { count: teamMembersCount } = await supabase
-          .from('team_members')
-          .select('*', { count: 'exact', head: true });
-
         setStats({
           blogPosts: blogCount || 0,
           projects: projectsCount || 0,
-          messages: messagesCount || 0,
-          teamMembers: teamMembersCount || 0,
-          unreadMessages: unreadMessagesCount || 0,
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -81,25 +60,6 @@ const DashboardHome = () => {
       color: 'bg-green-50',
       textColor: 'text-green-500',
     },
-    {
-      title: 'Mensajes',
-      count: stats.messages,
-      unread: stats.unreadMessages,
-      icon: <MessageSquare size={24} className="text-yellow-500" />,
-      linkTo: '/dashboard/mensajes',
-      linkText: 'Ver Mensajes',
-      color: 'bg-yellow-50',
-      textColor: 'text-yellow-500',
-    },
-    {
-      title: 'Equipo',
-      count: stats.teamMembers,
-      icon: <Users size={24} className="text-purple-500" />,
-      linkTo: '/dashboard/equipo',
-      linkText: 'Administrar Equipo',
-      color: 'bg-purple-50',
-      textColor: 'text-purple-500',
-    },
   ];
 
   return (
@@ -129,7 +89,7 @@ const DashboardHome = () => {
           <div className="h-8 w-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {statCards.map((card) => (
             <div 
               key={card.title} 
@@ -140,11 +100,6 @@ const DashboardHome = () => {
                   <h3 className="text-lg font-medium">{card.title}</h3>
                   <p className="text-3xl font-semibold mt-2">
                     {card.count}
-                    {card.unread !== undefined && card.unread > 0 && (
-                      <span className="ml-2 text-sm bg-red-500 text-white px-2 py-1 rounded-full">
-                        {card.unread} nuevos
-                      </span>
-                    )}
                   </p>
                 </div>
                 <div className="p-3 rounded-full bg-white">
@@ -172,8 +127,6 @@ const DashboardHome = () => {
         <ul className="list-disc list-inside space-y-2 text-primary-700">
           <li>Crea y edita publicaciones de blog</li>
           <li>Administra los proyectos de arquitectura</li>
-          <li>Revisa los mensajes de contacto</li>
-          <li>Actualiza la información del equipo</li>
         </ul>
       </div>
     </div>
