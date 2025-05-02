@@ -28,7 +28,7 @@ const Hero = () => {
 
           <p className="text-lg text-white opacity-90 mb-8 max-w-xl">
             Somos un estudio de arquitectura dedicado a crear espacios funcionales, 
-            estéticos y sostenibles que transforman la forma en que vivimos y trabajamos.
+            estéticos, ingeniosos y sostenibles que transforman la forma en que vivimos y trabajamos.
           </p>
 
           <div className="flex flex-wrap gap-4">
