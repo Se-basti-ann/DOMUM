@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Link, NavLink } from 'react-router-dom'; // Importamos Link de React Router
+import { NavLink } from 'react-router-dom'; // Solo importamos NavLink
 
 const Hero = () => {
   return (
