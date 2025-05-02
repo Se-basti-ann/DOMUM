@@ -3,8 +3,17 @@ import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
+interface Project {
+  id: string;
+  title: string;
+  category: string;
+  client: string;
+  year: string;
+  created_at?: string;
+}
+
 const DashboardProjects = () => {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +47,7 @@ const DashboardProjects = () => {
 
       if (error) throw error;
       
-      setProjects(projects.filter((project: any) => project.id !== id));
+      setProjects(projects.filter((project) => project.id !== id));
     } catch (error) {
       console.error('Error deleting project:', error);
     }
@@ -78,7 +87,7 @@ const DashboardProjects = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {projects.map((project: any) => (
+              {projects.map((project) => (
                 <tr key={project.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{project.title}</div>
