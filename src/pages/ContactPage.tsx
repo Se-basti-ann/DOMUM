@@ -5,7 +5,7 @@ import ContactForm from '../components/contact/ContactForm';
 
 const ContactPage = () => {
   useEffect(() => {
-    document.title = 'Contacto | ArquiStudio';
+    document.title = 'Contacto | DOMUM Arquitectura';
   }, []);
 
   return (
@@ -50,7 +50,7 @@ const ContactPage = () => {
                       <div>
                         <h3 className="font-medium mb-1">Correo Electrónico</h3>
                         <a 
-                          href="jvanegas@domumarquitectura.com" 
+                          href="mailto:jvanegas@domumarquitectura.com" 
                           className="text-primary-700 hover:text-primary-900 transition-colors"
                         >
                           jvanegas@domumarquitectura.com
@@ -69,6 +69,12 @@ const ContactPage = () => {
                           className="text-primary-700 hover:text-primary-900 transition-colors"
                         >
                           1-555-123-4567
+                        </a>
+                        <br />
+                        <a 
+                          href="tel:1-800-123-4567" 
+                          className="text-primary-700 hover:text-primary-900 transition-colors"
+                        >
                           1-800-123-4567
                         </a>
                       </div>
@@ -81,7 +87,6 @@ const ContactPage = () => {
                       <div>
                         <h3 className="font-medium mb-1">Ubicación</h3>
                         <p className="text-primary-700">
-                          
                           Bogotá, Colombia<br />
                           Código Postal 110110
                         </p>
@@ -145,11 +150,32 @@ const ContactPage = () => {
       </section>
       
       {/* Map */}
-      <section className="h-96 bg-gray-200">
-        <div className="h-full w-full flex items-center justify-center bg-primary-100">
-          <p className="text-primary-800">
-            Mapa de ubicación (aquí se integraría un mapa con la API de Google Maps)
-          </p>
+      <section className="h-[500px] relative">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="w-full h-full"
+        >
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d254508.39280650293!2d-74.24789682453324!3d4.648625942145595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9bfd2da6cb29%3A0x239d635520a33914!2sBogot%C3%A1%2C%20Colombia!5e0!3m2!1ses!2sco!4v1652458995415!5m2!1ses!2sco" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Mapa de Bogotá"
+            className="filter grayscale-[0.2] contrast-[1.1]"
+          ></iframe>
+        </motion.div>
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-gradient-to-b from-primary-900/10 to-transparent"></div>
+        <div className="absolute top-4 right-4 md:top-8 md:right-8 bg-white p-4 rounded-lg shadow-md z-10">
+          <h3 className="font-medium text-primary-900 flex items-center gap-2">
+            <MapPin size={18} className="text-primary-600" />
+            DOMUM Arquitectura
+          </h3>
+          <p className="text-sm text-primary-700 mt-1">Bogotá, Colombia</p>
         </div>
       </section>
     </>
