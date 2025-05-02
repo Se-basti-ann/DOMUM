@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const About = () => {
   const ref = useRef(null);
@@ -50,9 +51,9 @@ const About = () => {
             </motion.p>
             
             <motion.div variants={itemVariants}>
-              <a href="/nosotros" className="button-primary">
+              <NavLink to="/nosotros" className="button-primary">
                 Conoce más sobre nosotros
-              </a>
+              </NavLink>
             </motion.div>
           </div>
 
