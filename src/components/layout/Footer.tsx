@@ -128,7 +128,7 @@ const Footer = () => {
 
         <div className="border-t border-primary-700 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-primary-300 text-sm">
-            &copy; {currentYear} DOMUM Arquitectura. Todos los derechos reservados.
+            &copy; {currentYear} DOMUM Arquitectura. Todos los derechos reservados. Sebastian Rodriguez Poveda
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-sm text-primary-300 hover:text-white transition-colors">
