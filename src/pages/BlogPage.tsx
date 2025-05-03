@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useSupabase } from '../contexts/SupabaseContext';
 import { Blog } from '../types';
 import { Calendar, ArrowUpRight } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 
 const BlogPage = () => {
   const supabase = useSupabase();
@@ -127,13 +128,16 @@ const BlogPage = () => {
                     </div>
                     <h3 className="text-xl font-medium mb-3">{post.title}</h3>
                     <p className="text-primary-700 mb-4">{post.excerpt}</p>
-                    <a
-                      href={`/blog/${post.slug}`}
-                      className="inline-flex items-center gap-2 text-accent-600 font-medium hover:text-accent-800 transition-colors"
+                    <NavLink
+                      to={`/blog/${post.slug}`}
+                      className={({ isActive }) => `button-primary 
+                        inline-flex items-center gap-2 font-medium transition-colors
+                        ${isActive ? 'text-accent-800' : 'text-accent-600 hover:text-accent-800'}
+                      `}
                     >
                       Leer más
                       <ArrowUpRight size={16} />
-                    </a>
+                    </NavLink>
                   </div>
                 </motion.div>
               ))}
