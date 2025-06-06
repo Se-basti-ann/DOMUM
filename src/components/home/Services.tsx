@@ -179,9 +179,9 @@ const Services = () => {
                     <div className="flex gap-6">
                       <div className="flex-1">
                         <p className="text-gray-300 mb-4">{service.fullDescription}</p>
-                        <button className="px-4 py-2 bg-[#6BC6C9] text-[#001D23] rounded-md hover:bg-[#6BC6C9]/80 transition-colors text-sm font-medium">
+                        {/* <button className="px-4 py-2 bg-[#6BC6C9] text-[#001D23] rounded-md hover:bg-[#6BC6C9]/80 transition-colors text-sm font-medium">
                           Más información
-                        </button>
+                        </button> */}
                       </div>
                       
                       {/* Additional visual element */}
