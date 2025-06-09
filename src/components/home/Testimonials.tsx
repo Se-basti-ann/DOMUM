@@ -157,7 +157,7 @@ const TestimonialCard = memo(({ testimonial, isActive }: TestimonialCardProps) =
     <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#003E5E] rounded-full opacity-20"></div>
     
     <div className="absolute -top-6 left-6 z-10">
-      <div className="bg-[#6BC6C9] w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+      <div className="bg-[#6BC6C9] w-12 h-12 rounded-full flex items-center justify-center shadow-lg mt-7">
         <Quote size={28} className="text-[#001D23]" aria-hidden="true" />
       </div>
     </div>
@@ -387,7 +387,7 @@ const Testimonials = () => {
         </motion.div>
 
         {/* Carrusel 3D de testimonios */}
-        <div className="relative mb-24">
+        <div className="relative mb-24 ">
           <div className="max-w-3xl mx-auto">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
