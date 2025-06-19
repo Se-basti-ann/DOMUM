@@ -45,7 +45,7 @@ const Navbar = () => {
     { label: 'Inicio', path: '/' },
     { label: 'Nosotros', path: '/nosotros' },
     { label: 'Proyectos', path: '/proyectos' },
-    { label: 'Blog', path: '/blog' },
+    //{ label: 'Blog', path: '/blog' },
     { label: 'Contacto', path: '/contacto' },
   ];
 

@@ -19,7 +19,7 @@ const HomePage = () => {
       <Services />
       <Projects />
       <Testimonials />
-      <BlogPreview />
+      {/*<BlogPreview />*/}
       <ContactCTA />
     </>
   );

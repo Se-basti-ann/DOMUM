@@ -72,11 +72,11 @@ const Footer = () => {
                   Proyectos
                 </NavLink>
               </li>
-              <li>
+               {/*<li>
                 <NavLink to="/blog" className="text-primary-100 hover:text-white transition-colors">
                   Blog
                 </NavLink>
-              </li>
+              </li> */}
               <li>
                 <NavLink to="/contacto" className="text-primary-100 hover:text-white transition-colors">
                   Contacto
@@ -100,29 +100,54 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h4 className="text-lg font-medium mb-6">Contacto</h4>
-            <ul className="flex flex-col gap-4">
-              <li>
-                <a 
-                  href="mailto:jvanegas@domumarquitectura.com" 
-                  className="flex items-center gap-3 text-primary-100 hover:text-white transition-colors"
-                >
-                  <Mail size={18} />
-                  <span>jvanegas@domumarquitectura.com</span>
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="tel:1-555-123-4567" 
-                  className="flex items-center gap-3 text-primary-100 hover:text-white transition-colors"
-                >
-                  <Phone size={18} />
-                  <span>1-555-123-4567</span>
-                </a>
-              </li>
-              <li className="text-primary-100">                
+            <div className="flex flex-col gap-6">
+              {/* Mt.Arq Hernando Jimenez */}
+              <div className="border-b border-primary-700 pb-4">
+                <h5 className="text-white font-medium mb-3">Mt.Arq Hernando Jiménez</h5>
+                <div className="flex flex-col gap-2">
+                  <a 
+                    href="tel:3134678695" 
+                    className="flex items-center gap-2 text-primary-100 hover:text-white transition-colors text-sm"
+                  >
+                    <Phone size={16} />
+                    <span>313 467 8695</span>
+                  </a>
+                  <a 
+                    href="mailto:hjimenez@domumarquitectura.com" 
+                    className="flex items-center gap-2 text-primary-100 hover:text-white transition-colors text-sm"
+                  >
+                    <Mail size={16} />
+                    <span>hjimenez@domumarquitectura.com</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Mt.Arq Julián Vanegas */}
+              <div className="border-b border-primary-700 pb-4">
+                <h5 className="text-white font-medium mb-3">Mt.Arq Julián Vanegas</h5>
+                <div className="flex flex-col gap-2">
+                  <a 
+                    href="tel:3214749187" 
+                    className="flex items-center gap-2 text-primary-100 hover:text-white transition-colors text-sm"
+                  >
+                    <Phone size={16} />
+                    <span>321 474 9187</span>
+                  </a>
+                  <a 
+                    href="mailto:jvanegas@domumarquitectura.com" 
+                    className="flex items-center gap-2 text-primary-100 hover:text-white transition-colors text-sm"
+                  >
+                    <Mail size={16} />
+                    <span>jvanegas@domumarquitectura.com</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="text-primary-100 text-sm">                
                 <p>Bogotá, Colombia</p>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
 
