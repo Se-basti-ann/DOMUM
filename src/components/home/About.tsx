@@ -36,7 +36,7 @@ const AnimatedCounter = ({ value, duration = 2000 }: { value: string, duration?:
   
   return (
     <div ref={countRef} className="inline-flex items-baseline">
-      <span className="text-3xl font-bold text-white">
+      <span className="text-3xl font-bold text-white font-['Avenir Next']">
         {count}
         {hasSuffix && '+'}
       </span>
@@ -55,10 +55,10 @@ const About = () => {
 
   // Datos para las estadísticas
   const stats = [
-    { value: '120+', label: 'Proyectos Completados', icon: <Home className="w-6 h-6" /> },
-    { value: '15+', label: 'Años de Experiencia', icon: <Award className="w-6 h-6" /> },
-    { value: '40+', label: 'Profesionales', icon: <Users className="w-6 h-6" /> },
-    { value: '8', label: 'Premios de Diseño', icon: <Lightbulb className="w-6 h-6" /> }
+    { value: '40+', label: 'Proyectos Completados', icon: <Home className="w-6 h-6" /> },
+    { value: '5+', label: 'Años de Experiencia', icon: <Award className="w-6 h-6" /> },
+    { value: '25+', label: 'Profesionales', icon: <Users className="w-6 h-6" /> },
+    //{ value: '8', label: 'Premios de Diseño', icon: <Lightbulb className="w-6 h-6" /> }
   ];
 
   return (
@@ -72,7 +72,7 @@ const About = () => {
           className="flex items-center gap-4 mb-12"
         >
           <div className="h-[2px] w-12 bg-[#6BC6C9]"></div>
-          <h2 className="text-white text-3xl md:text-4xl font-medium">Sobre DOMUM Arquitectura</h2>
+          <h2 className="text-white text-3xl md:text-4xl font-medium font-['Avenir Next']">Sobre DOMUM Arquitectura</h2>
         </motion.div>
 
         <div className="flex flex-col items-center max-w-4xl mx-auto">
@@ -91,7 +91,7 @@ const About = () => {
             
             {/* Overlay con estadísticas */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#001D23]/95 to-transparent p-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-white">
                 {stats.map((stat, index) => (
                   <motion.div 
                     key={index}
@@ -106,7 +106,7 @@ const About = () => {
                     <div className="mb-1">
                       <AnimatedCounter value={stat.value} duration={2000 + index * 300} />
                     </div>
-                    <div className="text-sm opacity-90">{stat.label}</div>
+                    <div className="text-sm opacity-90 font-['Raleway']">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
@@ -120,7 +120,7 @@ const About = () => {
             animate={isInView ? "visible" : "hidden"}
             className="mt-8"
           >              
-            <NavLink to="/nosotros" className="px-8 py-4 bg-[#6BC6C9] text-[#001D23] rounded-md hover:bg-[#6BC6C9]/80 transition-colors inline-flex items-center gap-2 font-medium text-lg">
+            <NavLink to="/nosotros" className="px-8 py-4 bg-[#6BC6C9] text-[#001D23] rounded-md hover:bg-[#6BC6C9]/80 transition-colors inline-flex items-center gap-2 font-medium text-lg font-['Raleway']">
               Conoce más sobre nosotros
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>

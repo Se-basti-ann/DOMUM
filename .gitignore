@@ -26,3 +26,6 @@ dist-ssr
 .env
 # Ignora la carpeta supabase
 supabase
+src/utils
+src/components/auth
+src/hooks

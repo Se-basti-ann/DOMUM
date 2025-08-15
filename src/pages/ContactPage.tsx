@@ -68,10 +68,10 @@ const ContactPage = () => {
   return (
     <>
       {/* Header with gradient background */}
-      <section className="bg-gradient-to-r from-[#001D23] to-[#003E5E] py-12 sm:py-16 md:py-24 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-primary-900 to-primary-800 py-12 sm:py-16 md:py-24 relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-[#6BC6C9]/5 rounded-full translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-[#6BC6C9]/5 rounded-full -translate-x-1/3 translate-y-1/3"></div>
+        <div className="absolute top-0 right-0 w-48 sm:w-64 md:w-96 h-48 sm:h-64 md:h-96 bg-accent-600/5 rounded-full translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-accent-600/5 rounded-full -translate-x-1/3 translate-y-1/3"></div>
         
         <div className="container-custom relative z-10 px-4 sm:px-6">
           <motion.div
@@ -81,11 +81,11 @@ const ContactPage = () => {
             className="max-w-3xl"
           >
             <div className="flex items-center gap-3 mb-3 sm:mb-4">
-              <div className="h-[2px] w-8 sm:w-12 bg-[#6BC6C9]"></div>
-              <span className="text-[#6BC6C9] text-sm sm:text-base font-medium font-['Raleway']">CONTACTO</span>
+              <div className="h-[2px] w-8 sm:w-12 bg-accent-600"></div>
+              <span className="text-accent-600 text-sm sm:text-base font-medium">CONTACTO</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-6 font-['Avenir Next']">Contáctanos por WhatsApp</h1>
-            <p className="text-gray-300 text-base sm:text-lg font-['Raleway']">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl text-white mb-4 sm:mb-6">Contáctanos por WhatsApp</h1>
+            <p className="text-primary-100 text-base sm:text-lg">
               Comunícate directamente con nuestros arquitectos para discutir tu proyecto. 
               Estamos disponibles para ayudarte a hacer realidad tus ideas.
             </p>
@@ -105,10 +105,10 @@ const ContactPage = () => {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium mb-4 text-[#001D23] font-['Avenir Next']">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium mb-4 text-primary-900">
                 Nuestros Arquitectos
               </h2>
-              <p className="text-[#003E5E] text-lg max-w-2xl mx-auto">
+              <p className="text-primary-700 text-lg max-w-2xl mx-auto">
                 Contacta directamente con nuestros profesionales especializados
               </p>
             </motion.div>
@@ -120,25 +120,25 @@ const ContactPage = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
-                  className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-100 hover:shadow-xl transition-all duration-300"
+                  className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-primary-200 hover:shadow-xl transition-all duration-300"
                 >
                   {/* Header del arquitecto */}
                   <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[#6BC6C9] to-[#003E5E] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-20 h-20 bg-gradient-to-br from-accent-600 to-primary-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white text-2xl font-bold">
                         {architect.name.split(' ')[1]?.[0] || architect.name[0]}
                       </span>
                     </div>
-                    <h3 className="text-xl font-semibold text-[#001D23] mb-2 font-['Avenir Next']">
+                    <h3 className="text-xl font-semibold text-primary-900 mb-2">
                       {architect.name}
                     </h3>
-                    <div className="w-16 h-[2px] bg-[#6BC6C9] mx-auto"></div>
+                    <div className="w-16 h-[2px] bg-accent-600 mx-auto"></div>
                   </div>
 
                   {/* Información de contacto */}
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="bg-[#6BC6C9]/10 p-2 rounded-lg text-[#6BC6C9]">
+                      <div className="bg-accent-600/10 p-2 rounded-lg text-accent-600">
                         <Phone size={18} />
                       </div>
                       <div className="flex-1">
@@ -146,13 +146,13 @@ const ContactPage = () => {
                         <div className="flex items-center justify-between">
                           <a 
                             href={`tel:${architect.phone}`}
-                            className="text-[#003E5E] hover:text-[#001D23] font-medium transition-colors"
+                            className="text-primary-700 hover:text-primary-900 font-medium transition-colors"
                           >
                             {formatPhoneNumber(architect.phone)}
                           </a>
                           <button 
                             onClick={() => copyToClipboard(architect.phone, 'phone', `phone-${index}`)}
-                            className="p-1 text-gray-400 hover:text-[#6BC6C9] transition-colors"
+                            className="p-1 text-gray-400 hover:text-accent-600 transition-colors"
                             aria-label="Copiar teléfono"
                           >
                             <AnimatePresence mode="wait">
@@ -184,7 +184,7 @@ const ContactPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="bg-[#6BC6C9]/10 p-2 rounded-lg text-[#6BC6C9]">
+                      <div className="bg-accent-600/10 p-2 rounded-lg text-accent-600">
                         <Mail size={18} />
                       </div>
                       <div className="flex-1">
@@ -192,13 +192,13 @@ const ContactPage = () => {
                         <div className="flex items-center justify-between">
                           <a 
                             href={`mailto:${architect.email}`}
-                            className="text-[#003E5E] hover:text-[#001D23] font-medium transition-colors break-all"
+                            className="text-primary-700 hover:text-primary-900 font-medium transition-colors break-all"
                           >
                             {architect.email}
                           </a>
                           <button 
                             onClick={() => copyToClipboard(architect.email, 'email', `email-${index}`)}
-                            className="p-1 text-gray-400 hover:text-[#6BC6C9] transition-colors ml-2"
+                            className="p-1 text-gray-400 hover:text-accent-600 transition-colors ml-2"
                             aria-label="Copiar correo"
                           >
                             <AnimatePresence mode="wait">
@@ -254,13 +254,13 @@ const ContactPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-gray-100"
+            className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-primary-200"
           >
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-semibold text-[#001D23] mb-4 font-['Avenir Next']">
+              <h3 className="text-2xl font-semibold text-primary-900 mb-4">
                 Nuestras Oficinas
               </h3>
-              <div className="w-16 h-[2px] bg-[#6BC6C9] mx-auto"></div>
+              <div className="w-16 h-[2px] bg-accent-600 mx-auto"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -268,14 +268,14 @@ const ContactPage = () => {
               {addresses.map((address, index) => (
                 <div key={index} className="flex flex-col gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="bg-[#6BC6C9]/10 p-3 rounded-lg text-[#6BC6C9] flex-shrink-0">
+                    <div className="bg-accent-600/10 p-3 rounded-lg text-accent-600 flex-shrink-0">
                       <MapPin size={20} />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#001D23] mb-2 font-['Avenir Next']">
+                      <h4 className="font-semibold text-primary-900 mb-2">
                         {address.title}
                       </h4>
-                      <div className="text-[#003E5E] space-y-1">
+                      <div className="text-primary-700 space-y-1">
                         <p>{address.address}</p>
                         <p>{address.zone}</p>
                         <p>{address.city}</p>
@@ -288,16 +288,16 @@ const ContactPage = () => {
             </div>
 
             {/* Horarios */}
-            <div className="border-t border-gray-100 pt-8">
+            <div className="border-t border-primary-200 pt-8">
               <div className="flex items-start gap-4 justify-center">
-                <div className="bg-[#6BC6C9]/10 p-3 rounded-lg text-[#6BC6C9] flex-shrink-0">
+                <div className="bg-accent-600/10 p-3 rounded-lg text-accent-600 flex-shrink-0">
                   <Clock size={20} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-[#001D23] mb-2 font-['Avenir Next']">
+                  <h4 className="font-semibold text-primary-900 mb-2">
                     Horario de Atención
                   </h4>
-                  <div className="text-[#003E5E] space-y-1">
+                  <div className="text-primary-700 space-y-1">
                     <p>Lunes - Viernes: 08:00 - 18:00</p>
                     <p>Sábados: 08:00 - 12:00</p>
                     <p>Domingos: Cerrado</p>
@@ -330,21 +330,21 @@ const ContactPage = () => {
             className="filter grayscale-[0.3] contrast-[1.1]"
           ></iframe>
         </motion.div>
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-gradient-to-b from-[#001D23]/10 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-gradient-to-b from-primary-900/10 to-transparent"></div>
         
         {/* Información de ubicaciones en el mapa */}
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="absolute top-4 right-4 md:top-8 md:right-8 bg-white p-4 rounded-lg shadow-lg z-10 border-l-4 border-[#6BC6C9] max-w-[280px]"
+          className="absolute top-4 right-4 md:top-8 md:right-8 bg-white p-4 rounded-lg shadow-lg z-10 border-l-4 border-accent-600 max-w-[280px]"
         >
-          <h3 className="font-medium text-[#001D23] flex items-center gap-2 text-base font-['Avenir Next'] mb-3">
-            <MapPin size={18} className="text-[#6BC6C9]" />
+          <h3 className="font-medium text-primary-900 flex items-center gap-2 text-base mb-3">
+            <MapPin size={18} className="text-accent-600" />
             DOMUM Arquitectura
           </h3>
-          <div className="space-y-2 text-sm text-[#003E5E] font-['Raleway']">
-            <div className="border-b border-gray-200 pb-2">
+          <div className="space-y-2 text-sm text-primary-700">
+            <div className="border-b border-primary-200 pb-2">
               <p className="font-medium">Sede Norte</p>
               <p>Carrera 50a #65-59</p>
               <p>Bogotá, Colombia</p>

@@ -83,3 +83,38 @@ export interface PaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
 }
+
+export interface ProjectAPI {
+  meters: any;
+  area: ReactNode;
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  category: string;
+  year: string;
+  location: string;
+  client: string;
+  image_url: string;
+  gallery: string[];
+  created_at: string;
+  updated_at: string;
+  slug: string;
+}
+
+export interface APIProject {
+  "COL 1": string; // id
+  "COL 2": string; // title
+  "COL 3": string; // description
+  "COL 4": string; // content
+  "COL 5": string; // category
+  "COL 6": string; // year
+  "COL 7": string; // location
+  "COL 8": string; // client
+  "COL 9": string; // image_url
+  "COL 10": string; // gallery (JSON string)
+  "COL 11": string; // created_at
+  "COL 12": string; // updated_at
+  "COL 13": string; // slug
+  "COL 14": string; // meters
+}
