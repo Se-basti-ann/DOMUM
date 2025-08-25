@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 import { Blog } from '../../types';
-import { uploadImage, deleteImage, validateImageFile, DEFAULT_IMAGES } from '../../utils/imagesUtils';
+import { uploadImage, deleteImage, validateImageFile, DEFAULT_IMAGES } from '../../utils/imagesUtils'
 import { blogService } from '../../services/blogServices';
 
 const emptyBlogPost: Omit<Blog, 'id' | 'created_at' | 'updated_at'> = {
@@ -10,7 +10,7 @@ const emptyBlogPost: Omit<Blog, 'id' | 'created_at' | 'updated_at'> = {
   content: '',
   excerpt: '',
   image_url: '',
-  published_at: new Date().toISOString().split('T')[0], // Solo la fecha, no la hora
+  published_at: new Date().toISOString().split('T')[0], // Solo la fecha, no la hor
   author: '',
   category: '',
   slug: '',
