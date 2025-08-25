@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Consumo API</title>
+</head>
+
+<body>
+    <h1>Datos de la base de datos</h1>
+    <ul id="lista"></ul>
+
+    <script>
+        fetch("https://domumarquitectura.com/assets/API.php")
+            .then(res => res.json())
+            .then(data => {
+                const lista = document.getElementById("lista");
+
+                if (data.length === 0) {
+                    lista.innerHTML = "<li>No hay datos disponibles</li>";
+                    return;
+                }
+
+                data.forEach(item => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                <h3>${item.title}</h3>
+                <p>${item.description}</p>
+                <p><b>Categoría:</b> ${item.category}</p>
+                <p><b>Ubicación:</b> ${item.location}</p>
+                <p><b>Año:</b> ${item.year}</p>
+                <img src="${item.image_url}" width="200">
+            `;
+                    lista.appendChild(li);
+                });
+            })
+            .catch(err => console.error("Error:", err));
+    </script>
+</body>
+
+</html>
