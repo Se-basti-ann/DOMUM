@@ -14,7 +14,7 @@ const LoginPage = () => {
   useEffect(() => {
     document.title = 'Iniciar Sesión | DOMUM Arquitectura';
     
-    // If already logged in, redirect to dashboard
+    // Si ya está logueado, redirigir al dashboard
     if (user) {
       navigate('/dashboard');
     }
@@ -29,12 +29,13 @@ const LoginPage = () => {
       const { error } = await signIn(email, password);
       
       if (error) {
-        throw new Error(error.message);
+        setError(error); // ahora el error viene como string desde el backend
+        return;
       }
       
       navigate('/dashboard');
     } catch (err) {
-      setError('Credenciales incorrectas. Inténtalo de nuevo.');
+      setError('Error de conexión con el servidor. Inténtalo más tarde.');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);

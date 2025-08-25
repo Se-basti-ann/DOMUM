@@ -7,8 +7,17 @@ import { useAuth } from '../../contexts/AuthContext';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signOut, isAdmin } = useAuth();
+  const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Debug: log del estado de autenticación
+  useEffect(() => {
+    console.log('🔍 Navbar - Auth State:', { 
+      user: user ? { id: user.id, email: user.email, name: user.name } : null, 
+      canAccessDashboard: !!user,
+      isLoading
+    });
+  }, [user, isLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,8 +40,10 @@ const Navbar = () => {
     };
   }, [isMobileMenuOpen]);
 
-  const handleSignOut = async () => {
-    await signOut();
+  const handleSignOut = () => {
+    console.log('🚪 Navbar - Cerrando sesión...');
+    signOut();
+    setIsMobileMenuOpen(false);
     navigate('/');
   };
 
@@ -48,6 +59,38 @@ const Navbar = () => {
     //{ label: 'Blog', path: '/blog' },
     { label: 'Contacto', path: '/contacto' },
   ];
+
+  // Mostrar loading state si está cargando
+  if (isLoading) {
+    return (
+      <nav className={navbarClasses}>
+        <div className="container-custom flex items-center justify-between py-0 -mt-1 px-2 sm:px-4 md:px-6">
+          <NavLink to="/" className="flex items-center gap-0 md:gap-2 max-w-[65%] md:max-w-none">
+            <div className="h-30 w-40 sm:w-60 md:h-15 md:w-80 rounded overflow-hidden -mt-2 md:-mt-4">
+              <img 
+                src="https://www.domumarquitectura.com/wp-content/uploads/2025/02/LOGOS-09.png" 
+                alt="DOMUM Arquitectura"
+                className="w-full h-full object-contain md:object-cover"
+              />
+            </div>
+            <span className="hidden md:inline-block font-serif text-xl font-medium text-primary-900 -mt-4">
+              DOMUM Arquitectura
+            </span>
+          </NavLink>
+          
+          {/* Loading indicator */}
+          <div className="hidden md:flex items-center">
+            <div className="h-4 w-4 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+            <span className="ml-2 text-sm text-primary-600">Verificando sesión...</span>
+          </div>
+          
+          <button className="md:hidden p-2 -mt-2 md:-mt-4" disabled>
+            <Menu size={24} />
+          </button>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className={navbarClasses}>
@@ -85,21 +128,30 @@ const Navbar = () => {
           {user ? (
             <div className="relative group">
               <button className="flex items-center gap-1 nav-link">
-                <span>Mi Cuenta</span>
+                <span>{user.name || 'Mi Cuenta'}</span>
                 <ChevronDown size={16} />
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                {isAdmin && (
-                  <NavLink
-                    to="/dashboard"
-                    className="block px-4 py-2 text-primary-800 hover:bg-primary-50"
-                  >
-                    Dashboard
-                  </NavLink>
+                {/* Debug info en desarrollo */}
+                {/*process.env.NODE_ENV === 'development' && (
+                  <div className="px-4 py-2 text-xs text-gray-500 border-b">
+                    <div>Email: {user.email}</div>
+                    <div>Dashboard: DISPONIBLE</div>
+                    <div>ID: {user.id}</div>
+                  </div>
                 )}
+                
+                {/* Mostrar Dashboard para cualquier usuario logueado */}
+                <NavLink
+                  to="/dashboard"
+                  className="block px-4 py-2 text-primary-800 hover:bg-primary-50 transition-colors"
+                >
+                  Dashboard
+                </NavLink>
+                
                 <button
                   onClick={handleSignOut}
-                  className="w-full text-left px-4 py-2 text-primary-800 hover:bg-primary-50"
+                  className="w-full text-left px-4 py-2 text-primary-800 hover:bg-primary-50 transition-colors"
                 >
                   Cerrar Sesión
                 </button>
@@ -138,7 +190,7 @@ const Navbar = () => {
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `block py-2 ${isActive ? 'nav-link-active' : 'nav-link'}`
+                    `block py-2 transition-colors ${isActive ? 'nav-link-active' : 'nav-link'}`
                   }
                 >
                   {link.label}
@@ -147,22 +199,29 @@ const Navbar = () => {
               
               {user ? (
                 <div className="flex flex-col gap-2 border-t border-gray-200 pt-2 mt-1">
-                  <div className="text-sm text-gray-500">Mi Cuenta</div>
-                  {isAdmin && (
-                    <NavLink
-                      to="/dashboard"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block py-2 nav-link"
-                    >
-                      Dashboard
-                    </NavLink>
-                  )}
+                  <div className="text-sm text-gray-500">
+                    {user.name || 'Mi Cuenta'}
+                    {/* Debug info en desarrollo */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="text-xs mt-1">
+                        <div>Email: {user.email}</div>
+                        <div>Dashboard: DISPONIBLE</div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Mostrar Dashboard para cualquier usuario logueado */}
+                  <NavLink
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-2 nav-link transition-colors"
+                  >
+                    Dashboard
+                  </NavLink>
+                  
                   <button 
-                    onClick={() => {
-                      handleSignOut();
-                      setIsMobileMenuOpen(false);
-                    }} 
-                    className="text-left py-2 nav-link text-red-600"
+                    onClick={handleSignOut}
+                    className="text-left py-2 nav-link text-red-600 transition-colors"
                   >
                     Cerrar Sesión
                   </button>

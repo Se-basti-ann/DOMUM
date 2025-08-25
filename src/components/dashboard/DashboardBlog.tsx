@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusCircle, Edit2, Trash2, Search, Calendar } from 'lucide-react';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { Blog } from '../../types';
+import { blogService } from '../../services/blogServices';
 
 const DashboardBlog = () => {
-  const supabase = useSupabase();
   const [blogPosts, setBlogPosts] = useState<Blog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,15 +16,8 @@ const DashboardBlog = () => {
 
   async function fetchBlogPosts() {
     setIsLoading(true);
-    
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .order('published_at', { ascending: false });
-        
-      if (error) throw error;
-      
+      const data = await blogService.getAllBlogs();
       setBlogPosts(data || []);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
@@ -36,20 +28,14 @@ const DashboardBlog = () => {
 
   const handleDeletePost = async (id: string) => {
     if (!confirm('¿Estás seguro de que deseas eliminar este blog post?')) return;
-    
+
     setIsDeleting(id);
-    
     try {
-      const { error } = await supabase
-        .from('blogs')
-        .delete()
-        .eq('id', id);
-        
-      if (error) throw error;
-      
+      await blogService.deleteBlog(id);
       setBlogPosts(blogPosts.filter(post => post.id !== id));
     } catch (error) {
       console.error('Error deleting blog post:', error);
+      alert('Error al eliminar la publicación. Intente de nuevo.');
     } finally {
       setIsDeleting(null);
     }
@@ -63,24 +49,27 @@ const DashboardBlog = () => {
     });
   };
 
-  const filteredPosts = blogPosts.filter(post => 
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPosts = blogPosts.filter((post) => {
+  const title = (post.title ?? "").toLowerCase();
+  const category = (post.category ?? "").toLowerCase();
+  const search = searchTerm.toLowerCase();
+
+  return title.includes(search) || category.includes(search);
+});
 
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-medium">Administrar Blog</h1>
-        <Link 
-          to="/dashboard/blog/nuevo" 
+        <Link
+          to="/dashboard/blog/nuevo"
           className="flex items-center gap-2 button-primary"
         >
           <PlusCircle size={16} />
           Nueva Publicación
         </Link>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="mb-6 relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -94,7 +83,7 @@ const DashboardBlog = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         {isLoading ? (
           <div className="flex justify-center my-12">
             <div className="h-8 w-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
@@ -103,7 +92,9 @@ const DashboardBlog = () => {
           <div className="text-center py-12">
             <h3 className="text-lg font-medium mb-2">No hay publicaciones</h3>
             <p className="text-primary-600 mb-6">
-              {searchTerm ? 'No se encontraron publicaciones con ese criterio de búsqueda.' : 'Comienza a crear publicaciones para tu blog.'}
+              {searchTerm
+                ? 'No se encontraron publicaciones con ese criterio de búsqueda.'
+                : 'Comienza a crear publicaciones para tu blog.'}
             </p>
             {searchTerm && (
               <button

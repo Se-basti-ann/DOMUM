@@ -7,8 +7,9 @@ import DashboardBlogEdit from '../components/dashboard/DashboardBlogEdit';
 import DashboardProjects from '../components/dashboard/DashboardProjects';
 import DashboardProjectEdit from '../components/dashboard/DashboardProjectEdit';
 import DashboardMessages from '../components/dashboard/DashboardMessages';
-import DashboardTeam from '../components/dashboard/DashboardTeam';
-import DashboardTeamEdit from '../components/dashboard/DashboardTeamEdit';
+
+import DashboardUserEdit from '../components/dashboard/DashboardTeamEdit';
+import DashboardUsers from '../components/dashboard/DashboardTeam';
 
 const DashboardPage = () => {
   useEffect(() => {
@@ -34,9 +35,9 @@ const DashboardPage = () => {
             <Route path="proyectos/nuevo" element={<DashboardProjectEdit />} />
             <Route path="proyectos/:id" element={<DashboardProjectEdit />} />
             <Route path="mensajes" element={<DashboardMessages />} />
-            <Route path="equipo" element={<DashboardTeam />} />
-            <Route path="equipo/nuevo" element={<DashboardTeamEdit />} />
-            <Route path="equipo/:id" element={<DashboardTeamEdit />} />
+            <Route path="usuarios" element={<DashboardUsers />} />
+            <Route path="usuarios/nuevo" element={<DashboardUserEdit />} />
+            <Route path="usuarios/:id" element={<DashboardUserEdit />} />
           </Routes>
         </div>
       </main>

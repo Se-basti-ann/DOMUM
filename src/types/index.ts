@@ -15,9 +15,8 @@ export interface Blog {
   slug: string;
 }
 
+// Interfaz principal de Project (corregida)
 export interface Project {
-  meters: any;
-  area: ReactNode;
   id: string;
   title: string;
   description: string;
@@ -31,6 +30,7 @@ export interface Project {
   created_at: string;
   updated_at: string;
   slug: string;
+  meters: string; // Solo meters, no area
 }
 
 export interface TeamMember {
@@ -63,6 +63,12 @@ export interface ContactFormValues {
   message: string;
 }
 
+// Tipos para operaciones CRUD
+export type CreateProjectData = Omit<Project, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateProjectData = Omit<Project, 'id' | 'created_at' | 'updated_at'>;
+export type CreateBlogData = Omit<Blog, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateBlogData = Omit<Blog, 'id' | 'created_at' | 'updated_at'>;
+
 // Component Props Types
 export interface SectionHeaderProps {
   title: string;
@@ -84,25 +90,22 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export interface ProjectAPI {
-  meters: any;
-  area: ReactNode;
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  category: string;
-  year: string;
-  location: string;
-  client: string;
-  image_url: string;
-  gallery: string[];
-  created_at: string;
-  updated_at: string;
-  slug: string;
+// API Response Types
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
-export interface APIProject {
+export interface ImageUploadResponse {
+  success: boolean;
+  url: string;
+  fileName?: string;
+  isGallery?: boolean;
+}
+
+// Tipo para mapear las columnas genéricas de la API
+export interface APIProjectRaw {
   "COL 1": string; // id
   "COL 2": string; // title
   "COL 3": string; // description
@@ -117,4 +120,36 @@ export interface APIProject {
   "COL 12": string; // updated_at
   "COL 13": string; // slug
   "COL 14": string; // meters
+}
+
+// Tipos para listas de dashboard
+export interface ProjectListItem {
+  id: string;
+  title: string;
+  category: string;
+  client: string;
+  year: string;
+  created_at?: string;
+}
+
+export interface BlogListItem {
+  id: string;
+  title: string;
+  category: string;
+  author: string;
+  published_at: string;
+  created_at?: string;
+}
+
+// Tipos para validación
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+// Tipos para galería
+export interface GalleryImage {
+  url: string;
+  alt?: string;
+  caption?: string;
 }

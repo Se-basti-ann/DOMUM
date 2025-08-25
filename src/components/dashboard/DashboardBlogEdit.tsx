@@ -1,42 +1,44 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X } from 'lucide-react';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { Blog } from '../../types';
-import { uploadImage, deleteImage, validateImageFile, DEFAULT_IMAGES } from '../../utils/imageUtils';
+import { uploadImage, deleteImage, validateImageFile, DEFAULT_IMAGES } from '../../utils/imagesUtils';
+import { blogService } from '../../services/blogServices';
 
 const emptyBlogPost: Omit<Blog, 'id' | 'created_at' | 'updated_at'> = {
   title: '',
   content: '',
   excerpt: '',
   image_url: '',
-  published_at: new Date().toISOString(),
+  published_at: new Date().toISOString().split('T')[0], // Solo la fecha, no la hora
   author: '',
   category: '',
   slug: '',
 };
 
 const DashboardBlogEdit = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const supabase = useSupabase();
   const [post, setPost] = useState<Omit<Blog, 'id' | 'created_at' | 'updated_at'>>(emptyBlogPost);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [currentBlogId, setCurrentBlogId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const isEditing = !!id;
   
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && id) {
+      setCurrentBlogId(id);
       fetchPost(id);
     } else {
       // Set default image for new posts
       setPost(prev => ({ ...prev, image_url: DEFAULT_IMAGES.blog }));
       setImagePreview(DEFAULT_IMAGES.blog);
+      setCurrentBlogId(null);
     }
     
     document.title = isEditing 
@@ -46,20 +48,57 @@ const DashboardBlogEdit = () => {
   
   async function fetchPost(postId: string) {
     setIsLoading(true);
+    setErrorMessage(null);
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('id', postId)
-        .single();
-        
-      if (error) throw error;
+      const data = await blogService.getBlog(postId);
+      const { id: blogId, created_at, updated_at, ...postData } = data;
       
-      if (data) {
-        const { id, created_at, updated_at, ...postData } = data;
-        setPost(postData);
-        setImagePreview(postData.image_url);
-      }
+      // Función para extraer solo la fecha sin problemas de zona horaria
+      const extractDateOnly = (dateString: string | null | undefined): string => {
+        if (!dateString) return new Date().toISOString().split('T')[0];
+        
+        // Si ya es solo una fecha (YYYY-MM-DD), devolverla tal como está
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+          return dateString;
+        }
+        
+        // Si tiene tiempo, extraer solo la parte de la fecha
+        if (dateString.includes('T')) {
+          return dateString.split('T')[0];
+        }
+        
+        if (dateString.includes(' ')) {
+          return dateString.split(' ')[0];
+        }
+        
+        // Si es una fecha en otro formato, intentar parsearla
+        try {
+          const date = new Date(dateString);
+          // Usar getFullYear, getMonth, getDate para evitar problemas de zona horaria
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        } catch {
+          return new Date().toISOString().split('T')[0];
+        }
+      };
+      
+      // Asegurar que todos los campos sean strings, nunca undefined
+      const sanitizedPost = {
+        title: postData.title || '',
+        content: postData.content || '',
+        excerpt: postData.excerpt || '',
+        image_url: postData.image_url || DEFAULT_IMAGES.blog,
+        published_at: extractDateOnly(postData.published_at),
+        author: postData.author || '',
+        category: postData.category || '',
+        slug: postData.slug || '',
+      };
+      
+      setPost(sanitizedPost);
+      setImagePreview(sanitizedPost.image_url);
+      setCurrentBlogId(blogId); // Guardar el ID del blog
     } catch (error) {
       console.error('Error fetching post:', error);
       setErrorMessage('No se pudo cargar la publicación. Intente de nuevo.');
@@ -72,7 +111,7 @@ const DashboardBlogEdit = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setPost(prev => ({ ...prev, [name]: value }));
+    setPost(prev => ({ ...prev, [name]: value || '' })); // Asegurar que nunca sea undefined
   };
   
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +122,7 @@ const DashboardBlogEdit = () => {
       validateImageFile(file);
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
+      setErrorMessage(null); // Limpiar errores previos
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -110,53 +150,63 @@ const DashboardBlogEdit = () => {
     e.preventDefault();
     setIsSaving(true);
     setErrorMessage(null);
-    
+
     try {
-      // Generate slug if empty
-      if (!post.slug && post.title) {
-        post.slug = generateSlug(post.title);
+      if (isEditing && (!currentBlogId || !id)) {
+        throw new Error('ID de blog no válido para actualización');
       }
 
-      // Handle image upload if there's a new image
+      // Generar slug en variable local
+      const finalSlug = post.slug || generateSlug(post.title);
+
+      // Subir imagen si hay nueva
+      let finalImageUrl = post.image_url;
       if (imageFile) {
-        const imageUrl = await uploadImage(supabase, imageFile, 'blog-images');
-        post.image_url = imageUrl;
+        finalImageUrl = await uploadImage(imageFile, 'blog-images', post.image_url);
       }
-      
-      if (isEditing) {
-        // Update existing post
-        const { error } = await supabase
-          .from('blogs')
-          .update({
-            ...post,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', id);
-          
-        if (error) throw error;
+
+      // CORREGIDO: Enviar solo la fecha sin agregar tiempo
+      // Esto evita problemas de zona horaria
+      const postData = {
+        ...post,
+        image_url: finalImageUrl,
+        slug: finalSlug,
+        published_at: post.published_at, // Enviar solo la fecha YYYY-MM-DD
+      };
+
+      console.log('Datos a enviar:', postData);
+
+      if (isEditing && currentBlogId) {
+        console.log('Updating blog with ID:', currentBlogId, postData);
+        await blogService.updateBlog(currentBlogId, postData);
       } else {
-        // Create new post
-        const { error } = await supabase
-          .from('blogs')
-          .insert([
-            {
-              ...post,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-          ]);
-          
-        if (error) throw error;
+        console.log('Creating new blog', postData);
+        await blogService.createBlog(postData);
       }
-      
+
       navigate('/dashboard/blog');
     } catch (error) {
       console.error('Error saving post:', error);
-      setErrorMessage('Error al guardar la publicación. Intente de nuevo.');
+      setErrorMessage(
+        error instanceof Error
+          ? `Error al guardar la publicación: ${error.message}`
+          : 'Error al guardar la publicación. Intente de nuevo.'
+      );
     } finally {
       setIsSaving(false);
     }
   };
+  
+  // Mostrar error si estamos en modo edición pero no hay ID
+  if (isEditing && !id) {
+    return (
+      <div className="flex justify-center my-12">
+        <div className="bg-red-50 text-red-700 p-4 rounded-md">
+          Error: ID de publicación no válido
+        </div>
+      </div>
+    );
+  }
   
   if (isLoading) {
     return (
@@ -178,6 +228,9 @@ const DashboardBlogEdit = () => {
         <h1 className="text-2xl font-medium">
           {isEditing ? 'Editar Publicación' : 'Nueva Publicación'}
         </h1>
+        {isEditing && currentBlogId && (
+          <span className="text-sm text-gray-500">ID: {currentBlogId}</span>
+        )}
       </div>
       
       {errorMessage && (
@@ -286,11 +339,15 @@ const DashboardBlogEdit = () => {
               <input
                 type="date"
                 name="published_at"
-                value={post.published_at.substring(0, 10)}
+                value={post.published_at}
                 onChange={handleChange}
                 className="input-field"
                 required
               />
+              {/* Mostrar la fecha seleccionada para debugging */}
+              <p className="text-xs text-gray-500 mt-1">
+                Fecha seleccionada: {post.published_at}
+              </p>
             </div>
             
             <div>
@@ -309,7 +366,7 @@ const DashboardBlogEdit = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setPost({ ...post, slug: generateSlug(post.title) })}
+                  onClick={() => setPost(prev => ({ ...prev, slug: generateSlug(prev.title) }))}
                   className="ml-2 bg-primary-100 text-primary-700 px-3 py-2 rounded hover:bg-primary-200 transition-colors"
                 >
                   Generar
@@ -356,7 +413,7 @@ const DashboardBlogEdit = () => {
             </button>
             <button
               type="submit"
-              disabled={isSaving}
+              disabled={isSaving || (isEditing && !currentBlogId)}
               className="button-primary flex items-center gap-2"
             >
               {isSaving ? (

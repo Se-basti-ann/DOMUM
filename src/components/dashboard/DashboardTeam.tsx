@@ -1,139 +1,212 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { supabase } from '../../lib/supabaseClient';
 
-interface TeamMember {
+interface User {
   id: string;
   name: string;
-  position: string;
-  image_url: string;
-  display_order: number;
+  email: string;
+  create_at?: string;
 }
 
-const DashboardTeam = () => {
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+const DashboardUsers = () => {
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [debugInfo, setDebugInfo] = useState('Componente inicializado');
+
+  const API_BASE_URL = 'https://domumarquitectura.com/assets';
 
   useEffect(() => {
-    fetchTeamMembers();
+    setDebugInfo('useEffect ejecutado');
+    fetchUsers();
   }, []);
 
-  const fetchTeamMembers = async () => {
+  const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('team_members')
-        .select('*')
-        .order('display_order', { ascending: true });
+      setDebugInfo('Iniciando fetchUsers...');
+      setLoading(true);
+      setError('');
+      
+      setDebugInfo('Haciendo petición a la API...');
+      
+      const response = await fetch(`${API_BASE_URL}/API_AllUser.php`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
-      if (error) throw error;
-      setTeamMembers(data || []);
-    } catch (error) {
-      console.error('Error fetching team members:', error);
+      setDebugInfo(`Respuesta recibida. Status: ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setDebugInfo(`Datos parseados: ${JSON.stringify(data)}`);
+      
+      if (data.success && data.users) {
+        setUsers(data.users);
+        setDebugInfo(`${data.users.length} usuarios cargados correctamente`);
+      } else {
+        setError(data.error || 'Error loading users');
+        setDebugInfo('Error en la respuesta de la API');
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Error desconocido';
+      setError('Error connecting to server: ' + errorMsg);
+      setDebugInfo(`Error capturado: ${errorMsg}`);
     } finally {
       setLoading(false);
+      setDebugInfo(prev => prev + ' - Loading finalizado');
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este miembro del equipo?')) {
+  const handleDelete = async (id: string, userName: string) => {
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar al usuario "${userName}"?`)) {
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('team_members')
-        .delete()
-        .eq('id', id);
+      const response = await fetch(`${API_BASE_URL}/API_DeleteUser.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id })
+      });
 
-      if (error) throw error;
-      
-      setTeamMembers(teamMembers.filter(member => member.id !== id));
-    } catch (error) {
-      console.error('Error deleting team member:', error);
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers(users.filter(user => user.id !== id));
+        alert('Usuario eliminado correctamente');
+      } else {
+        setError(data.error || 'Error deleting user');
+      }
+    } catch (err) {
+      setError('Error connecting to server');
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
+  // Renderizado simple y directo
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Equipo</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Dashboard Usuarios</h1>
+      
+      {/* Información de debug siempre visible */}
+      {/* <div className="mb-4 p-4 bg-blue-100 border border-blue-300 rounded">
+        <h3 className="font-bold">Estado:</h3>
+        <p><strong>Loading:</strong> {loading.toString()}</p>
+        <p><strong>Error:</strong> {error || 'Ninguno'}</p>
+        <p><strong>Usuarios count:</strong> {users.length}</p>
+        <p><strong>Debug:</strong> {debugInfo}</p>
+      </div> */}
+
+      {/* Estado de carga */}
+      {loading && (
+        <div className="p-4 bg-yellow-100 border border-yellow-300 rounded mb-4">
+          <p>🔄 Cargando usuarios...</p>
+        </div>
+      )}
+
+      {/* Mostrar errores */}
+      {error && (
+        <div className="p-4 bg-red-100 border border-red-300 rounded mb-4">
+          <p><strong>Error:</strong> {error}</p>
+          <button 
+            onClick={fetchUsers}
+            className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {/* Botón para agregar usuario */}
+      <div className="mb-4">
         <Link
-          to="/dashboard/equipo/nuevo"
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center gap-2"
+          to="/dashboard/usuarios/nuevo"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 inline-flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
-          Nuevo Miembro
+          Nuevo Usuario
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Imagen
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nombre
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cargo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Orden
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {teamMembers.map((member) => (
-                <tr key={member.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <img
-                      src={member.image_url}
-                      alt={member.name}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{member.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{member.position}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{member.display_order}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex gap-2">
-                      <Link
-                        to={`/dashboard/equipo/${member.id}`}
-                        className="text-primary-600 hover:text-primary-900"
-                      >
-                        <Pencil className="w-5 h-5" />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(member.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
+      {/* Lista de usuarios */}
+      <div className="bg-white border border-gray-300 rounded">
+        {users.length === 0 && !loading ? (
+          <div className="p-4 text-center text-gray-500">
+            No hay usuarios para mostrar
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead className="bg-gray-100">
+                <tr>
+                  {/* <th className="border border-gray-300 px-4 py-2 text-left">ID</th> */}
+                  <th className="border border-gray-300 px-4 py-2 text-left">Nombre</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Fecha</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {users.map((user, index) => (
+                  <tr key={user.id || index} className="hover:bg-gray-50">
+                    {/* <td className="border border-gray-300 px-4 py-2">{user.id}</td> */}
+                    <td className="border border-gray-300 px-4 py-2">{user.name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{user.email}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {user.create_at ? new Date(user.create_at).toLocaleDateString() : '-'}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <div className="flex gap-2">
+                        <Link
+                          to={`/dashboard/usuarios/${user.id}`}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Editar usuario"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(user.id, user.name)}
+                          className="text-red-600 hover:text-red-800"
+                          title="Eliminar usuario"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* Botón manual para testing */}
+      <div className="mt-4">
+        <button
+          onClick={fetchUsers}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          🔄 Cargar Usuarios Manualmente
+        </button>
+      </div>
+
+      {/* Raw data para debugging */}
+      {/* <div className="mt-4 p-4 bg-gray-100 border rounded">
+        <h3 className="font-bold mb-2">Raw Users Data:</h3>
+        <pre className="text-xs overflow-auto">
+          {JSON.stringify(users, null, 2)}
+        </pre>
+      </div> */}
     </div>
   );
 };
 
-export default DashboardTeam;
+export default DashboardUsers;

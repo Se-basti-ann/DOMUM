@@ -1,22 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
 import { Upload, X, ArrowLeft, Save } from 'lucide-react';
-import { uploadImage, validateImageFile, DEFAULT_IMAGES } from '../../utils/imageUtils';
-
-interface Project {
-  title: string;
-  description: string;
-  content: string;
-  category: string;
-  year: string;
-  location: string;
-  client: string;
-  image_url: string;
-  gallery: string[];
-  slug: string;
-  meters: string;
-}
+import { projectService } from '../../services/projectService';
+import { DEFAULT_IMAGES } from '../../utils/imagesUtils';
+import { Project, CreateProjectData, UpdateProjectData } from '../../types';
 
 const DashboardProjectEdit = () => {
   const navigate = useNavigate();
@@ -24,7 +11,7 @@ const DashboardProjectEdit = () => {
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [project, setProject] = useState<Project>({
+  const [project, setProject] = useState<CreateProjectData>({
     title: '',
     description: '',
     content: '',
@@ -43,112 +30,60 @@ const DashboardProjectEdit = () => {
   const [mainImagePreview, setMainImagePreview] = useState<string>('');
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
-  const [existingGallery, setExistingGallery] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  // Nombres de los buckets para las imágenes
-  const MAIN_IMAGE_BUCKET = 'project-images';
-  const GALLERY_BUCKET = 'project-gallery';
-
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setErrorMessage('Debes iniciar sesión para editar proyectos');
-        navigate('/login'); // Redirige al login si no hay sesión
-      }
-    };
-    
-    checkAuth();
-    if (id) fetchProject();
-    else setMainImagePreview(DEFAULT_IMAGES.project);
-  }, [id, navigate]);
+    if (id) {
+      fetchProject();
+    } else {
+      setMainImagePreview(DEFAULT_IMAGES.project);
+    }
+  }, [id]);
 
   const fetchProject = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', id)
-        .single();
-  
-      if (error) throw error;
-      if (data) {
-        console.log('Datos recibidos de proyecto:', data);
-        console.log('Tipo de gallery:', typeof data.gallery);
-        console.log('Contenido de gallery:', data.gallery);
-        
-        // Procesar la galería según el tipo recibido
-        let galleryData: string[] = [];
-        
-        if (data.gallery) {
-          try {
-            // Si ya es un array, úsalo directamente
-            if (Array.isArray(data.gallery)) {
-              galleryData = data.gallery;
-            }
-            // Si es un string JSON, parsearlo
-            else if (typeof data.gallery === 'string') {
-              try {
-                const parsed = JSON.parse(data.gallery);
-                galleryData = Array.isArray(parsed) ? parsed : [];
-              } catch (e) {
-                console.error('Error al parsear gallery como string JSON:', e);
-                galleryData = [];
-              }
-            }
-            // Si es un objeto, intentar extraer valores
-            else if (typeof data.gallery === 'object') {
-              try {
-                galleryData = Object.values(data.gallery).filter(
-                  (item): item is string => typeof item === 'string'
-                );
-              } catch (e) {
-                console.error('Error al extraer valores de gallery como objeto:', e);
-                galleryData = [];
-              }
-            }
-          } catch (parseError) {
-            console.error('Error general al procesar gallery:', parseError);
-            galleryData = [];
-          }
-        }
-        
-        console.log('Gallery procesada:', galleryData);
-        
-        // Crear un objeto limpio con valores por defecto
-        const processedData = {
-          ...data,
-          title: data.title || '',
-          description: data.description || '',
-          content: data.content || '',
-          category: data.category || '',
-          year: data.year || '',
-          location: data.location || '',
-          client: data.client || '',
-          image_url: data.image_url || DEFAULT_IMAGES.project,
-          gallery: galleryData,
-          slug: data.slug || '',
-          meters: data.meters || ''
-        };
-        
-        console.log('Datos procesados del proyecto:', processedData);
-        
-        setProject(processedData);
-        setMainImagePreview(processedData.image_url);
-        
-        // Establecer galerías existentes como previews
-        if (galleryData.length > 0) {
-          setGalleryPreviews(galleryData);
-        } else {
-          setGalleryPreviews([]);
-        }
+      setErrorMessage(null);
+      
+      const data = await projectService.getProject(id!);
+      
+      console.log('Datos recibidos de proyecto:', data);
+      console.log('Tipo de gallery:', typeof data.gallery);
+      console.log('Contenido de gallery:', data.gallery);
+      
+      // Asegurar que gallery sea siempre un array
+      const galleryData = Array.isArray(data.gallery) ? data.gallery : [];
+      
+      // Crear un objeto limpio con valores por defecto
+      const processedData: CreateProjectData = {
+        title: data.title || '',
+        description: data.description || '',
+        content: data.content || '',
+        category: data.category || '',
+        year: data.year || '',
+        location: data.location || '',
+        client: data.client || '',
+        image_url: data.image_url || DEFAULT_IMAGES.project,
+        gallery: galleryData,
+        slug: data.slug || '',
+        meters: data.meters || ''
+      };
+      
+      console.log('Datos procesados del proyecto:', processedData);
+      
+      setProject(processedData);
+      setMainImagePreview(processedData.image_url);
+      
+      // Establecer galerías existentes como previews
+      if (galleryData.length > 0) {
+        setGalleryPreviews(galleryData);
+      } else {
+        setGalleryPreviews([]);
       }
     } catch (error) {
       console.error('Error fetching project:', error);
-      setErrorMessage('Error cargando proyecto');
+      setErrorMessage(error instanceof Error ? error.message : 'Error cargando proyecto');
     } finally {
       setLoading(false);
     }
@@ -159,56 +94,23 @@ const DashboardProjectEdit = () => {
     setProject(prev => ({ ...prev, [name]: value }));
   };
 
-  // Función modificada para subir imágenes de galería
-const handleImageUpload = async (file: File, isGallery: boolean = false, existingPath?: string) => {
-  try {
-    validateImageFile(file);
-    
-    // Verificar sesión antes de subir
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error('Usuario no autenticado. Debes iniciar sesión para subir imágenes.');
+  // Función para subir imagen principal
+  const handleImageUpload = async (file: File, isGallery: boolean = false): Promise<string> => {
+    try {
+      projectService.validateImageFile(file);
+      
+      if (isGallery) {
+        const result = await projectService.uploadGalleryImage(file);
+        return result.url;
+      } else {
+        const result = await projectService.uploadMainImage(file);
+        return result.url;
+      }
+    } catch (error) {
+      if (error instanceof Error) setErrorMessage(error.message);
+      throw error;
     }
-    
-    const bucket = isGallery ? GALLERY_BUCKET : MAIN_IMAGE_BUCKET;
-    
-    // Generar nombre único para el archivo
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
-    
-    // Para el bucket de galería, necesitamos usar la carpeta 'public' según los permisos
-    const filePath = isGallery 
-      ? `public/${fileName}` 
-      : fileName;
-
-    // Subir el nuevo archivo con upsert: true para sobrescribir si existe
-    const { error: uploadError, data } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error('Error específico al subir:', uploadError);
-      throw new Error(`Error al subir imagen: ${uploadError.message}`);
-    }
-
-    // Obtener URL pública
-    const { data: urlData } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-
-    if (!urlData || !urlData.publicUrl) {
-      throw new Error('No se pudo obtener la URL pública de la imagen');
-    }
-
-    return urlData.publicUrl;
-  } catch (error) {
-    if (error instanceof Error) setErrorMessage(error.message);
-    throw error;
-  }
-};
+  };
 
   // Manejadores para imagen principal
   const handleMainImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,9 +118,10 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
     if (!file) return;
 
     try {
-      validateImageFile(file);
+      projectService.validateImageFile(file);
       setMainImageFile(file);
       setMainImagePreview(URL.createObjectURL(file));
+      setErrorMessage(null);
     } catch (error) {
       if (error instanceof Error) setErrorMessage(error.message);
       console.error('Error con la imagen:', error);
@@ -246,7 +149,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
     try {
       for (const file of files) {
         try {
-          validateImageFile(file);
+          projectService.validateImageFile(file);
           const preview = URL.createObjectURL(file);
           
           setGalleryFiles(prev => [...prev, file]);
@@ -261,6 +164,8 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       if (galleryInputRef.current) {
         galleryInputRef.current.value = '';
       }
+      
+      setErrorMessage(null);
     } catch (error) {
       console.error('Error en el manejo de imágenes de galería:', error);
       if (error instanceof Error) setErrorMessage(error.message);
@@ -296,13 +201,6 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
     setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, '-');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -312,7 +210,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       // Generar slug si está vacío
       let finalSlug = project.slug;
       if (!finalSlug && project.title) {
-        finalSlug = generateSlug(project.title);
+        finalSlug = projectService.generateSlug(project.title);
         setProject(prev => ({ ...prev, slug: finalSlug }));
       }
   
@@ -320,15 +218,10 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       let imageUrl = project.image_url;
       if (mainImageFile) {
         try {
-          // Extract existing path if updating
-          const existingPath = id && project.image_url !== DEFAULT_IMAGES.project 
-            ? project.image_url.split('/').pop() 
-            : undefined;
-            
-          imageUrl = await handleImageUpload(mainImageFile, false, existingPath);
+          imageUrl = await handleImageUpload(mainImageFile, false);
         } catch (imgError) {
           console.error('Error uploading main image:', imgError);
-          // If error uploading, keep the existing image
+          // Si hay error subiendo, mantener la imagen existente
           imageUrl = project.image_url;
         }
       }
@@ -356,8 +249,8 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       // Combinar galerías existentes y nuevas
       const combinedGallery = [...currentGallery, ...newGalleryUrls];
       
-      // Preparar el objeto para Supabase
-      const updatedProject = {
+      // Preparar el objeto para la API usando el tipo correcto
+      const updatedProject: CreateProjectData = {
         title: project.title || '',
         description: project.description || '',
         content: project.content || '',
@@ -366,7 +259,6 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
         location: project.location || '',
         client: project.client || '',
         image_url: imageUrl || DEFAULT_IMAGES.project,
-        // IMPORTANTE: Asegurarnos de que gallery sea un array
         gallery: combinedGallery,
         slug: finalSlug || '',
         meters: project.meters || ''
@@ -376,14 +268,11 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       console.log('Tipo de gallery:', typeof updatedProject.gallery);
       console.log('Contenido de gallery:', updatedProject.gallery);
   
-      // Guardar en Supabase
-      const { data, error } = id 
-        ? await supabase.from('projects').update(updatedProject).eq('id', id)
-        : await supabase.from('projects').insert([updatedProject]);
-  
-      if (error) {
-        console.error('Error específico de Supabase:', error);
-        throw new Error(`Error al guardar en base de datos: ${error.message}`);
+      // Guardar usando el servicio
+      if (id) {
+        await projectService.updateProject(id, updatedProject);
+      } else {
+        await projectService.createProject(updatedProject);
       }
   
       navigate('/dashboard/proyectos');
@@ -394,6 +283,14 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
       setIsSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -456,7 +353,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
                 {mainImageFile ? 'Cambiar imagen' : 'Subir imagen'}
               </label>
               <p className="text-sm text-gray-500 mt-2">
-                Formatos: JPG, PNG, WEBP. Máx. 5MB
+                Formatos: JPG, PNG, WEBP. Máx. 10MB
               </p>
             </div>
           </div>
@@ -475,7 +372,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.title || ''}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -490,7 +387,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.slug || ''}
               onChange={handleChange}
               placeholder="proyecto-ejemplo"
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -505,7 +402,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.category || ''}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -520,7 +417,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.year || ''}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -535,7 +432,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.location || ''}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -550,7 +447,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.client || ''}
               onChange={handleChange}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -565,7 +462,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               value={project.meters || ''}
               onChange={handleChange}
               placeholder="100 m²"
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
           
@@ -580,7 +477,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               onChange={handleChange}
               rows={2}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
 
@@ -595,7 +492,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
               onChange={handleChange}
               rows={6}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500"
             />
           </div>
         </div>
@@ -626,7 +523,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
           </button>
           
           <p className="text-sm text-gray-500 mb-4">
-            Formatos: JPG, PNG, WEBP. Máx. 5MB por imagen
+            Formatos: JPG, PNG, WEBP. Máx. 10MB por imagen
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -663,7 +560,7 @@ const handleImageUpload = async (file: File, isGallery: boolean = false, existin
           <button
             type="submit"
             disabled={isSaving}
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
           >
             {isSaving ? (
               <>

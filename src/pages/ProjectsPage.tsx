@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useSupabase } from '../contexts/SupabaseContext';
+import { projectService } from '../services/projectService';
 import { Project } from '../types';
 import { MapPin, Calendar, Search, Filter, X, ArrowRight } from 'lucide-react';
 
@@ -34,12 +34,20 @@ const ProjectCard = memo(({ project, hoveredProject, setHoveredProject }: Projec
             hoveredProject === project.id ? 'scale-105' : 'scale-100'
           }`}
           loading="lazy" // Carga diferida de imágenes
+          onError={(e) => {
+            // Manejar error de carga de imagen
+            const target = e.target as HTMLImageElement;
+            target.src = '/placeholder-image.jpg'; // Imagen de respaldo
+            target.alt = 'Imagen no disponible';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#001D23]/90 via-[#001D23]/50 to-transparent"></div>
         <div className="absolute bottom-0 left-0 w-full p-6">
-          <span className="inline-block px-3 py-1 bg-[#6BC6C9] text-[#001D23] text-sm font-medium rounded-full mb-3">
-            {project.category}
-          </span>
+          {project.category && (
+            <span className="inline-block px-3 py-1 bg-[#6BC6C9] text-[#001D23] text-sm font-medium rounded-full mb-3">
+              {project.category}
+            </span>
+          )}
           <h3 className="text-white text-xl font-medium mb-2">{project.title}</h3>
           <div className="flex flex-wrap gap-4 text-gray-300">
             {project.location && (
@@ -48,16 +56,18 @@ const ProjectCard = memo(({ project, hoveredProject, setHoveredProject }: Projec
                 <span>{project.location}</span>
               </div>
             )}
-            <div className="flex items-center gap-1">
-              <Calendar size={16} />
-              <span>{project.year}</span>
-            </div>
+            {project.year && (
+              <div className="flex items-center gap-1">
+                <Calendar size={16} />
+                <span>{project.year}</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="bg-[#001D23]/70 w-full h-full flex items-center justify-center">
             <Link 
-              to={`/proyectos/${project.slug}`}
+              to={`/proyectos/${project.slug || project.id}`}
               className="bg-[#6BC6C9] text-[#001D23] px-6 py-3 rounded-lg font-medium hover:bg-[#6BC6C9]/90 transition-colors inline-flex items-center gap-2"
             >
               Ver Proyecto
@@ -76,10 +86,10 @@ const ProjectCard = memo(({ project, hoveredProject, setHoveredProject }: Projec
 
 // Componente principal optimizado
 const ProjectsPage = () => {
-  const supabase = useSupabase();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -96,7 +106,9 @@ const ProjectsPage = () => {
     
     // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(project => project.category === selectedCategory);
+      filtered = filtered.filter(project => 
+        project.category && project.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
     }
     
     // Filter by search query
@@ -104,9 +116,11 @@ const ProjectsPage = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         project =>
-          project.title.toLowerCase().includes(query) ||
+          (project.title && project.title.toLowerCase().includes(query)) ||
           (project.description && project.description.toLowerCase().includes(query)) ||
-          (project.location && project.location.toLowerCase().includes(query))
+          (project.location && project.location.toLowerCase().includes(query)) ||
+          (project.client && project.client.toLowerCase().includes(query)) ||
+          (project.year && project.year.toLowerCase().includes(query))
       );
     }
     
@@ -125,26 +139,59 @@ const ProjectsPage = () => {
   const fetchProjects = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setError(null);
+      
+      const data = await projectService.getAllProjects();
+      
+      // Validar y limpiar los datos
+      const validProjects = data.filter(project => 
+        project && 
+        project.id && 
+        project.title
+      ).map(project => ({
+        ...project,
+        // Asegurar que los campos requeridos existan
+        title: project.title || 'Sin título',
+        description: project.description || '',
+        category: project.category || 'Sin categoría',
+        year: project.year || '',
+        location: project.location || '',
+        client: project.client || '',
+        image_url: project.image_url || '/placeholder-image.jpg',
+        gallery: Array.isArray(project.gallery) ? project.gallery : [],
+        slug: project.slug || project.id,
+        meters: project.meters || ''
+      }));
 
-      if (error) throw error;
-      setProjects(data || []);
-      setFilteredProjects(data || []);
+      setProjects(validProjects);
+      setFilteredProjects(validProjects);
     } catch (error) {
       console.error('Error fetching projects:', error);
+      setError(error instanceof Error ? error.message : 'Error cargando proyectos');
+      setProjects([]);
+      setFilteredProjects([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Función para reintentar la carga
+  const retryFetch = () => {
+    fetchProjects();
+  };
+
   // Memoizar las categorías para evitar recálculos
-  const categories = useMemo(() => 
-    ['all', ...Array.from(new Set(projects.map(project => project.category).filter(Boolean)))],
-    [projects]
-  );
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(
+        projects
+          .map(project => project.category)
+          .filter(category => category && category.trim() !== '')
+      )
+    ).sort();
+    
+    return ['all', ...uniqueCategories];
+  }, [projects]);
 
   // Variantes de animación simplificadas
   const containerVariants = {
@@ -279,11 +326,38 @@ const ProjectsPage = () => {
             </AnimatePresence>
           </motion.div>
 
-          {/* Estado de carga y resultados */}
+          {/* Estado de carga, error y resultados */}
           {isLoading ? (
             <div className="flex justify-center items-center min-h-[400px]">
-              <div className="h-12 w-12 border-4 border-[#6BC6C9]/30 border-t-[#6BC6C9] rounded-full animate-spin"></div>
+              <div className="text-center">
+                <div className="h-12 w-12 border-4 border-[#6BC6C9]/30 border-t-[#6BC6C9] rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-[#003E5E] font-medium">Cargando proyectos...</p>
+              </div>
             </div>
+          ) : error ? (
+            <motion.div 
+              className="text-center py-16 bg-white rounded-xl shadow-md border border-red-200"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium mb-2 text-red-800">Error cargando proyectos</h3>
+              <p className="text-red-600 max-w-md mx-auto mb-6">
+                {error}
+              </p>
+              <button 
+                onClick={retryFetch}
+                className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
+              >
+                Reintentar
+                <ArrowRight size={16} />
+              </button>
+            </motion.div>
           ) : filteredProjects.length === 0 ? (
             <motion.div 
               className="text-center py-16 bg-white rounded-xl shadow-md border border-gray-100"
@@ -296,18 +370,23 @@ const ProjectsPage = () => {
               </div>
               <h3 className="text-xl font-medium mb-2 text-[#001D23]">No hay proyectos disponibles</h3>
               <p className="text-gray-600 max-w-md mx-auto mb-6">
-                No se encontraron proyectos que coincidan con tu búsqueda. Intenta con otros términos o categorías.
+                {projects.length === 0 
+                  ? 'No se encontraron proyectos en la base de datos.'
+                  : 'No se encontraron proyectos que coincidan con tu búsqueda. Intenta con otros términos o categorías.'
+                }
               </p>
-              <button 
-                onClick={() => {
-                  setSelectedCategory('all');
-                  setSearchQuery('');
-                }}
-                className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
-              >
-                Restablecer filtros
-                <X size={16} />
-              </button>
+              {projects.length > 0 && (
+                <button 
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSearchQuery('');
+                  }}
+                  className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
+                >
+                  Restablecer filtros
+                  <X size={16} />
+                </button>
+              )}
             </motion.div>
           ) : (
             <motion.div 
@@ -331,14 +410,39 @@ const ProjectsPage = () => {
           {/* Mostrar más botón para listas largas */}
           {filteredProjects.length > 12 && (
             <div className="flex justify-center mt-12">
-              <Link 
-                to="/proyectos/todos"
-                className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
               >
-                Ver todos los proyectos
-                <ArrowRight size={16} />
-              </Link>
+                <button 
+                  onClick={() => {
+                    // Mostrar todos los proyectos o implementar paginación
+                    console.log('Mostrar más proyectos');
+                  }}
+                  className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
+                >
+                  Ver más proyectos ({filteredProjects.length - 12} restantes)
+                  <ArrowRight size={16} />
+                </button>
+              </motion.div>
             </div>
+          )}
+
+          {/* Estadísticas de proyectos */}
+          {!isLoading && !error && projects.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-12 text-center"
+            >
+              <p className="text-gray-600">
+                Mostrando {Math.min(filteredProjects.length, 12)} de {filteredProjects.length} proyectos
+                {selectedCategory !== 'all' && ` en la categoría "${selectedCategory}"`}
+                {searchQuery && ` que coinciden con "${searchQuery}"`}
+              </p>
+            </motion.div>
           )}
         </div>
       </section>
