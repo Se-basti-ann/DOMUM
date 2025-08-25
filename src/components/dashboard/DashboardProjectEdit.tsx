@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, X, ArrowLeft, Save } from 'lucide-react';
 import { projectService } from '../../services/projectService';
-import { DEFAULT_IMAGES } from '../../utils/imagesUtils';
+import { DEFAULT_IMAGES } from '../../utils/imagesUtils'
 import { Project, CreateProjectData, UpdateProjectData } from '../../types';
 
 const DashboardProjectEdit = () => {
@@ -20,7 +20,7 @@ const DashboardProjectEdit = () => {
     location: '',
     client: '',
     image_url: DEFAULT_IMAGES.project,
-    gallery: [], // Always initialize as an empty array
+    gallery: [], // Always initialize as an 
     slug: '',
     meters: ''
   });
