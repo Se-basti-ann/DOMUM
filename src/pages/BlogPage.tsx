@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useSupabase } from '../contexts/SupabaseContext';
 import { Blog } from '../types';
 import { Calendar, ArrowUpRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { mockAPI } from '../data/mockData';
 
 const BlogPage = () => {
-  const supabase = useSupabase();
   const [posts, setPosts] = useState<Blog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -18,13 +17,8 @@ const BlogPage = () => {
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .order('published_at', { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
+      const data = await mockAPI.getBlogs();
+      setPosts(data);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
     } finally {

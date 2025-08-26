@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projectService } from '../services/projectService';
 import { Project } from '../types';
+import { mockAPI } from '../data/mockData';
 import { Calendar, MapPin, Tag, ArrowLeft, Home, Ruler, User, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 const ProjectDetailPage = () => {
@@ -34,18 +34,9 @@ const ProjectDetailPage = () => {
       let projectData: Project | null = null;
       
       try {
-        const allProjects = await projectService.getAllProjects();
-        projectData = allProjects.find(p => p.slug === id) || null;
-        
-        if (!projectData) {
-          try {
-            projectData = await projectService.getProject(id);
-          } catch (idError) {
-            console.error('Project not found by slug or ID:', idError);
-          }
-        }
+        projectData = await mockAPI.getProjectBySlug(id);
       } catch (fetchError) {
-        console.error('Error fetching projects:', fetchError);
+        console.error('Error fetching project:', fetchError);
         throw fetchError;
       }
 
@@ -77,7 +68,7 @@ const ProjectDetailPage = () => {
 
   const fetchRelatedProjects = async (category: string, currentProjectId: string) => {
     try {
-      const allProjects = await projectService.getAllProjects();
+      const allProjects = await mockAPI.getProjects();
       
       const related = allProjects
         .filter(p => 
@@ -304,12 +295,12 @@ const ProjectDetailPage = () => {
                     </div>
                   )}
                   
-                  {project.meters && (
+                  {project.area && (
                     <div className="flex items-start gap-3">
                       <Ruler className="text-primary-600 mt-0.5 flex-shrink-0" size={18} />
                       <div>
                         <h4 className="font-medium text-primary-900 text-sm">Área</h4>
-                        <p className="text-primary-700 text-sm">{project.meters}</p>
+                        <p className="text-primary-700 text-sm">{project.area}</p>
                       </div>
                     </div>
                   )}

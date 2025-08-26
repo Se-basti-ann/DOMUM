@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useSupabase } from '../contexts/SupabaseContext';
 import { Blog } from '../types';
 import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
+import { mockAPI } from '../data/mockData';
 
 const BlogPostPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const supabase = useSupabase();
   const [post, setPost] = useState<Blog | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -20,17 +19,13 @@ const BlogPostPage = () => {
     if (!id) return;
 
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('slug', id)
-        .single();
-
-      if (error) throw error;
+      const data = await mockAPI.getBlogBySlug(id);
       
       setPost(data);
       if (data) {
         document.title = `${data.title} | DOMUM Arquitectura Blog`;
+      } else {
+        navigate('/blog');
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);

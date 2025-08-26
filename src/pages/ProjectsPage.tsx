@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { projectService } from '../services/projectService';
 import { Project } from '../types';
 import { MapPin, Calendar, Search, Filter, X, ArrowRight } from 'lucide-react';
+import { mockAPI } from '../data/mockData';
 
 // Definir tipos para las props del componente ProjectCard
 interface ProjectCardProps {
@@ -141,7 +141,7 @@ const ProjectsPage = () => {
       setIsLoading(true);
       setError(null);
       
-      const data = await projectService.getAllProjects();
+      const data = await mockAPI.getProjects();
       
       // Validar y limpiar los datos
       const validProjects = data.filter(project => 

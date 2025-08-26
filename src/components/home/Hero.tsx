@@ -34,7 +34,7 @@ const Hero = () => {
       setIsLoading(true);
       setError('');
       
-      const response = await fetch(`${API_BASE_URL}/API_Project.php`, {
+      const response = await fetch(`${API_BASE_URL}/API_Projects.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -2,13 +2,12 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowUpRight, User, Clock, Tag } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { Blog } from '../../types';
+import { mockAPI } from '../../data/mockData';
 
 const BlogPreview = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const supabase = useSupabase();
   const [posts, setPosts] = useState<Blog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // Cambiado el tipo para que coincida con el tipo de post.id (string)
@@ -20,14 +19,8 @@ const BlogPreview = () => {
 
   const fetchRecentPosts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('blogs')
-        .select('*')
-        .order('published_at', { ascending: false })
-        .limit(3); // Aumentado a 3 para mejor presentación visual
-
-      if (error) throw error;
-      setPosts(data || []);
+      const data = await mockAPI.getBlogs(3); // Limit to 3 posts for preview
+      setPosts(data);
     } catch (error) {
       console.error('Error fetching recent posts:', error);
     } finally {

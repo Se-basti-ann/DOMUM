@@ -2,13 +2,12 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useSupabase } from '../../contexts/SupabaseContext';
 import { Project } from '../../types';
+import { mockAPI } from '../../data/mockData';
 
 const Projects = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const supabase = useSupabase();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -20,14 +19,8 @@ const Projects = () => {
 
   const fetchFeaturedProjects = async () => {
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(6); // Increased limit for more carousel items
-
-      if (error) throw error;
-      setProjects(data || []);
+      const data = await mockAPI.getProjects(6); // Limit to 6 projects for carousel
+      setProjects(data);
     } catch (error) {
       console.error('Error fetching featured projects:', error);
     } finally {
