@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
-import { mockAPI } from '../data/mockData';
+import { apiService } from '../services/apiService';
 import { Calendar, MapPin, Tag, ArrowLeft, Home, Ruler, User, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 const ProjectDetailPage = () => {
@@ -34,7 +34,7 @@ const ProjectDetailPage = () => {
       let projectData: Project | null = null;
       
       try {
-        projectData = await mockAPI.getProjectBySlug(id);
+        projectData = await apiService.getProjectBySlug(id);
       } catch (fetchError) {
         console.error('Error fetching project:', fetchError);
         throw fetchError;
@@ -68,16 +68,7 @@ const ProjectDetailPage = () => {
 
   const fetchRelatedProjects = async (category: string, currentProjectId: string) => {
     try {
-      const allProjects = await mockAPI.getProjects();
-      
-      const related = allProjects
-        .filter(p => 
-          p.category === category && 
-          p.id !== currentProjectId &&
-          p.slug && p.slug !== id
-        )
-        .slice(0, 3);
-      
+      const related = await apiService.getRelatedProjects(category, currentProjectId, 3);
       setRelatedProjects(related);
     } catch (error) {
       console.error('Error fetching related projects:', error);

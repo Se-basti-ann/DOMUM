@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Blog } from '../types';
 import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
-import { mockAPI } from '../data/mockData';
+import { apiService } from '../services/apiService';
 
 const BlogPostPage = () => {
   const { id } = useParams();
@@ -19,7 +19,7 @@ const BlogPostPage = () => {
     if (!id) return;
 
     try {
-      const data = await mockAPI.getBlogBySlug(id);
+      const data = await apiService.getBlogBySlug(id);
       
       setPost(data);
       if (data) {

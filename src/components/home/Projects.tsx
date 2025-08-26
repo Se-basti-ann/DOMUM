@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Project } from '../../types';
-import { mockAPI } from '../../data/mockData';
+import { apiService } from '../../services/apiService';
 
 const Projects = () => {
   const ref = useRef(null);
@@ -19,7 +19,9 @@ const Projects = () => {
 
   const fetchFeaturedProjects = async () => {
     try {
-      const data = await mockAPI.getProjects(6); // Limit to 6 projects for carousel
+      console.log('Fetching featured projects...');
+      const data = await apiService.getProjectsWithLimit(6); // Limit to 6 projects for carousel
+      console.log('Featured projects data:', data);
       setProjects(data);
     } catch (error) {
       console.error('Error fetching featured projects:', error);

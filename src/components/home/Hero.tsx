@@ -163,16 +163,29 @@ const Hero = () => {
         </div>
       )}
 
+      {/* Debug info */}
+{/*       <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white p-4 rounded-md text-sm max-w-xs">
+        <div>Proyectos cargados: {projects.length}</div>
+        <div>Estado: {isLoading ? 'Cargando...' : 'Completado'}</div>
+        {error && <div className="text-red-300">Error: {error}</div>}
+        <button 
+          onClick={fetchFeaturedProjects}
+          className="mt-2 px-2 py-1 bg-blue-600 text-white rounded text-xs"
+        >
+          Recargar
+        </button>
+      </div>
+ */}
       {/* Error message */}
       {error && (
-        <div className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-md">
+        <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-md">
           {error}
         </div>
       )}
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-md">
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-4 py-2 rounded-md">
           Cargando proyectos...
         </div>
       )}

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
 import { MapPin, Calendar, Search, Filter, X, ArrowRight } from 'lucide-react';
-import { mockAPI } from '../data/mockData';
+import { apiService } from '../services/apiService';
 
 // Definir tipos para las props del componente ProjectCard
 interface ProjectCardProps {
@@ -94,6 +94,7 @@ const ProjectsPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [hoveredProject, setHoveredProject] = useState<string | null>(null);
+  const [displayedProjectsCount, setDisplayedProjectsCount] = useState(12);
   
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
@@ -125,6 +126,8 @@ const ProjectsPage = () => {
     }
     
     setFilteredProjects(filtered);
+    // Reset displayed count when filters change
+    setDisplayedProjectsCount(12);
   }, [projects, selectedCategory, searchQuery]);
 
   useEffect(() => {
@@ -141,7 +144,9 @@ const ProjectsPage = () => {
       setIsLoading(true);
       setError(null);
       
-      const data = await mockAPI.getProjects();
+      console.log('Fetching all projects...');
+      const data = await apiService.getProjects();
+      console.log('All projects data:', data);
       
       // Validar y limpiar los datos
       const validProjects = data.filter(project => 
@@ -160,9 +165,10 @@ const ProjectsPage = () => {
         image_url: project.image_url || '/placeholder-image.jpg',
         gallery: Array.isArray(project.gallery) ? project.gallery : [],
         slug: project.slug || project.id,
-        meters: project.meters || ''
+        area: project.meters || project.area || ''
       }));
 
+      console.log(`Processed ${validProjects.length} valid projects`);
       setProjects(validProjects);
       setFilteredProjects(validProjects);
     } catch (error) {
@@ -178,6 +184,11 @@ const ProjectsPage = () => {
   // Función para reintentar la carga
   const retryFetch = () => {
     fetchProjects();
+  };
+
+  // Función para mostrar más proyectos
+  const showMoreProjects = () => {
+    setDisplayedProjectsCount(prev => Math.min(prev + 12, filteredProjects.length));
   };
 
   // Memoizar las categorías para evitar recálculos
@@ -395,8 +406,8 @@ const ProjectsPage = () => {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
-              {/* Renderizado optimizado con windowing para grandes listas */}
-              {filteredProjects.slice(0, 12).map((project) => (
+              {/* Renderizado con paginación */}
+              {filteredProjects.slice(0, displayedProjectsCount).map((project) => (
                 <ProjectCard 
                   key={project.id}
                   project={project}
@@ -408,7 +419,7 @@ const ProjectsPage = () => {
           )}
           
           {/* Mostrar más botón para listas largas */}
-          {filteredProjects.length > 12 && (
+          {filteredProjects.length > displayedProjectsCount && (
             <div className="flex justify-center mt-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -416,13 +427,10 @@ const ProjectsPage = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <button 
-                  onClick={() => {
-                    // Mostrar todos los proyectos o implementar paginación
-                    console.log('Mostrar más proyectos');
-                  }}
+                  onClick={showMoreProjects}
                   className="px-6 py-3 bg-[#003E5E] text-white rounded-lg hover:bg-[#00303F] transition-colors inline-flex items-center gap-2"
                 >
-                  Ver más proyectos ({filteredProjects.length - 12} restantes)
+                  Ver más proyectos ({filteredProjects.length - displayedProjectsCount} restantes)
                   <ArrowRight size={16} />
                 </button>
               </motion.div>
@@ -438,7 +446,7 @@ const ProjectsPage = () => {
               className="mt-12 text-center"
             >
               <p className="text-gray-600">
-                Mostrando {Math.min(filteredProjects.length, 12)} de {filteredProjects.length} proyectos
+                Mostrando {Math.min(filteredProjects.length, displayedProjectsCount)} de {filteredProjects.length} proyectos
                 {selectedCategory !== 'all' && ` en la categoría "${selectedCategory}"`}
                 {searchQuery && ` que coinciden con "${searchQuery}"`}
               </p>

@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { Calendar, ArrowUpRight, User, Clock, Tag } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Blog } from '../../types';
-import { mockAPI } from '../../data/mockData';
+import { apiService } from '../../services/apiService';
 
 const BlogPreview = () => {
   const ref = useRef(null);
@@ -19,7 +19,9 @@ const BlogPreview = () => {
 
   const fetchRecentPosts = async () => {
     try {
-      const data = await mockAPI.getBlogs(3); // Limit to 3 posts for preview
+      console.log('Fetching recent blog posts...');
+      const data = await apiService.getBlogsWithLimit(3); // Limit to 3 posts for preview
+      console.log('Blog posts data:', data);
       setPosts(data);
     } catch (error) {
       console.error('Error fetching recent posts:', error);

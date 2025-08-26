@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Blog } from '../types';
 import { Calendar, ArrowUpRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { mockAPI } from '../data/mockData';
+import { apiService } from '../services/apiService';
 
 const BlogPage = () => {
   const [posts, setPosts] = useState<Blog[]>([]);
@@ -17,7 +17,7 @@ const BlogPage = () => {
 
   const fetchPosts = async () => {
     try {
-      const data = await mockAPI.getBlogs();
+      const data = await apiService.getBlogs();
       setPosts(data);
     } catch (error) {
       console.error('Error fetching blog posts:', error);

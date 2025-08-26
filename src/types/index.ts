@@ -17,6 +17,7 @@ export interface Blog {
 
 // Interfaz principal de Project (corregida)
 export interface Project {
+  area: string;
   id: string;
   title: string;
   description: string;
