@@ -118,7 +118,7 @@ const AboutPage = () => {
                 <div className="bg-accent-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Lightbulb size={24} className="text-primary-900" />
                 </div>
-                <h3 className="text-xl font-medium mb-4">Innovación</h3>
+                <h3 className="text-white font-medium mb-4">Innovación</h3>
                 <p className="text-primary-100">
                   Buscamos constantemente nuevas formas de resolver desafíos arquitectónicos, 
                   incorporando las últimas tecnologías y métodos sostenibles.
@@ -134,7 +134,7 @@ const AboutPage = () => {
                 <div className="bg-accent-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Leaf size={24} className="text-primary-900" />
                 </div>
-                <h3 className="text-xl font-medium mb-4">Sostenibilidad</h3>
+                <h3 className="text-white font-medium mb-4">Sostenibilidad</h3>
                 <p className="text-primary-100">
                   Nos comprometemos a crear espacios que no solo sean hermosos y funcionales, 
                   sino también respetuosos con el medio ambiente.
@@ -150,7 +150,7 @@ const AboutPage = () => {
                 <div className="bg-accent-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Award size={24} className="text-primary-900" />
                 </div>
-                <h3 className="text-xl font-medium mb-4">Excelencia</h3>
+                <h3 className="text-white font-medium mb-4">Excelencia</h3>
                 <p className="text-primary-100">
                   Cada proyecto es una oportunidad para superar expectativas y 
                   demostrar nuestro compromiso con la calidad y el detalle.
@@ -212,7 +212,7 @@ const AboutPage = () => {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent-600/10 rounded-full -translate-x-1/3 translate-y-1/3"></div>
             
             <div className="relative z-10 max-w-2xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-medium mb-4">¿Listo para trabajar juntos?</h2>
+              <h2 className="text-white md:text-3xl font-medium mb-4">¿Listo para trabajar juntos?</h2>
               <p className="text-primary-100 mb-8">
                 Contáctanos hoy para discutir cómo podemos ayudarte a hacer realidad tu próximo proyecto arquitectónico.
               </p>
