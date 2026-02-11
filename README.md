@@ -2,6 +2,7 @@
 
 <div align="center">
 
+
 ![DOMUM Logo](favicon.png)
 
 **Sistema de domótica inteligente para control y automatización del hogar**
@@ -11,7 +12,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 
-[Demo](https://domum-blue.vercel.app) • [Reporte de Bug](https://github.com/Se-basti-ann/DOMUM/issues) • [Solicitar Feature](https://github.com/Se-basti-ann/DOMUM/issues)
+[Demo: Mira el proyecto en este link](https://domum-gf2o.vercel.app/) • [Reporte de Bug](https://github.com/Se-basti-ann/DOMUM/issues) • [Solicitar Feature](https://github.com/Se-basti-ann/DOMUM/issues)
 
 </div>
 
